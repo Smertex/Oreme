@@ -1,4 +1,4 @@
-package by.smertex.interfaces.connections;
+package by.smertex.interfaces.cfg;
 
 import java.sql.Connection;
 
