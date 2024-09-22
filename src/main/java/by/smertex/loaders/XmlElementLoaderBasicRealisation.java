@@ -1,28 +1,33 @@
 package by.smertex.loaders;
 
 import by.smertex.interfaces.loaders.XmlElementLoader;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class XmlElementLoaderBasicRealisation implements XmlElementLoader {
     private static final XmlElementLoaderBasicRealisation INSTANCE = new XmlElementLoaderBasicRealisation();
 
-    private final Map<String, Element> xmlElements = new HashMap<>();
+    private final Map<String, Node> xmlElements = new HashMap<>();
 
     private void init(){
-        Element element = XmlElementLoader.findRootInXml(XmlElementLoader.initializationDocument());
-        feelXmlElements(element);
+        Node node = XmlElementLoader.findRootInXml(XmlElementLoader.initializationDocument()
+                .getChildNodes());
+        feelXmlElements(node.getChildNodes());
     }
 
-    private void feelXmlElements(Element element){
-
+    private void feelXmlElements(NodeList nodes){
+        IntStream.range(0, nodes.getLength())
+                .mapToObj(nodes::item)
+                .forEach(element -> xmlElements.put(element.getNodeName(), element));
     }
 
     @Override
-    public Element getElementByTag(String key) {
-        return null;
+    public Node getNodeByTag(String key) {
+        return xmlElements.get(key);
     }
 
     public static XmlElementLoaderBasicRealisation getInstance(){
