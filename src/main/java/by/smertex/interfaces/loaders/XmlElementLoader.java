@@ -1,6 +1,6 @@
 package by.smertex.interfaces.loaders;
 
-import by.smertex.exceptions.InitXmlException;
+import by.smertex.exceptions.loaders.InitXmlException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
