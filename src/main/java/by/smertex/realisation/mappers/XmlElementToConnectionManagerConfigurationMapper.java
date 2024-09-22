@@ -31,10 +31,10 @@ public class XmlElementToConnectionManagerConfigurationMapper implements Mapper<
         }
     }
 
-    private Map<String, String> nodeToMap(NodeList node){
+    private Map<String, String> nodeToMap(NodeList xmlProperties){
         Map<String, String> propertyValues = new HashMap<>();
-        IntStream.range(0, node.getLength())
-                .mapToObj(node::item)
+        IntStream.range(0, xmlProperties.getLength())
+                .mapToObj(xmlProperties::item)
                 .filter(item -> item.getNodeName().equals("property"))
                 .forEach(item -> propertyValues.put(item.getAttributes().getNamedItem("name").getNodeValue(), item.getTextContent()));
         return propertyValues;
