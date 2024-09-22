@@ -1,12 +1,12 @@
-package by.smertex.cfg;
+package by.smertex.realisation.cfg;
 
-import by.smertex.elements.ConnectionManagerConfiguration;
+import by.smertex.realisation.elements.ConnectionManagerConfiguration;
 import by.smertex.exceptions.cfg.TakeConnectionException;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
-import by.smertex.loaders.XmlElementLoaderBasicRealisation;
-import by.smertex.mappers.XmlElementToConnectionManagerConfigurationMapper;
+import by.smertex.realisation.loaders.XmlElementLoaderBasicRealisation;
+import by.smertex.realisation.mappers.XmlElementToConnectionManagerConfigurationMapper;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Proxy;

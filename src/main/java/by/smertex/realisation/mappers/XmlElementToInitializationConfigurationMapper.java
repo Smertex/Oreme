@@ -1,6 +1,6 @@
-package by.smertex.mappers;
+package by.smertex.realisation.mappers;
 
-import by.smertex.elements.InitializationConfiguration;
+import by.smertex.realisation.elements.InitializationConfiguration;
 import by.smertex.interfaces.mapper.Mapper;
 import org.w3c.dom.Node;
 

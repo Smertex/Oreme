@@ -1,4 +1,4 @@
-package by.smertex.loaders;
+package by.smertex.realisation.loaders;
 
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import org.w3c.dom.Node;

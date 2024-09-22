@@ -1,6 +1,6 @@
 package by.smertex.interfaces.cfg;
 
-import by.smertex.elements.ConnectionManagerConfiguration;
+import by.smertex.realisation.elements.ConnectionManagerConfiguration;
 
 public interface InitializationManager{
 

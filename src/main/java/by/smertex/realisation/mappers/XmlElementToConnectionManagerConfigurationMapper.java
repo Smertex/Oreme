@@ -1,7 +1,7 @@
-package by.smertex.mappers;
+package by.smertex.realisation.mappers;
 
 
-import by.smertex.elements.ConnectionManagerConfiguration;
+import by.smertex.realisation.elements.ConnectionManagerConfiguration;
 import by.smertex.exceptions.mapper.MapFromException;
 import by.smertex.interfaces.mapper.Mapper;
 import org.w3c.dom.Node;
