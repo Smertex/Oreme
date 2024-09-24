@@ -20,15 +20,12 @@ public class XmlElementToInitializationConfigurationMapper implements Mapper<Ini
         try {
             return new InitializationConfiguration.BuilderInitializationConfiguration()
                     .setInitializationStrategy(InitializationStrategy.valueOf(property.get("strategy").toUpperCase()))
-                    .setQueryGenerate(Boolean.valueOf(property.get("query-generate")))
+                    .setIsolationLevel(property.get("isolation-level"))
+                    .setQueryGenerate(property.get("query-generate"))
                     .build();
         } catch (RuntimeException e){
             throw new MapFromException(e);
         }
-    }
-
-    public static XmlElementToInitializationConfigurationMapper getInstance(){
-        return INSTANCE;
     }
 
     private Map<String, String> nodeToMap(NodeList xmlProperties){
@@ -38,6 +35,10 @@ public class XmlElementToInitializationConfigurationMapper implements Mapper<Ini
                 .filter(item -> item.getNodeName().equals("property"))
                 .forEach(item -> propertyValues.put(item.getAttributes().getNamedItem("name").getNodeValue(), item.getTextContent()));
         return propertyValues;
+    }
+
+    public static XmlElementToInitializationConfigurationMapper getInstance(){
+        return INSTANCE;
     }
 
     private XmlElementToInitializationConfigurationMapper(){
