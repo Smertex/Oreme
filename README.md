@@ -1,6 +1,7 @@
-XML структура:
+## Структура XML
 
 [!IMPORTANT]
+```xml
 <?xml version='1.0' encoding='utf-8'?>
 <oreme-configuration>
     <connection-manager-configuration>
