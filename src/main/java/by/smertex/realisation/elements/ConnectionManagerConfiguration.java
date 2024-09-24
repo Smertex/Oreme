@@ -11,7 +11,7 @@ public record ConnectionManagerConfiguration(String connectionUrl,
 
     private static final Integer DEFAULT_EXTENSION_POOL_SIZE = 10;
 
-    public static class BuilderConnectionManagerConfiguration{
+    public static final class BuilderConnectionManagerConfiguration{
         private String connectionUrl;
         private String connectionUsername;
         private String password;
