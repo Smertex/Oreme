@@ -7,12 +7,13 @@
         <property name="connection.username"></property>
         <property name="connection.password"></property>
         <property name="connection.driver.class"></property>
-        <property name="pool.size"></property>
-        <property name="pool.expansion"></property>
+        <property name="pool.size"></property> <!-- optional, base value "10" -->
+        <property name="pool.expansion"></property> <!-- optional, base value "10" -->
     </connection-manager-configuration>
     <initialization-configuration>
         <property name="strategy"></property>
-        <property name="query-generate"></property>
+        <property name="query-generate"></property> <!-- optional, base value "false" -->
+        <property name="isolation-level"></property> <!-- optional, base value "serializable" -->
     </initialization-configuration>
     <entities>
         <mapping class=""/>
