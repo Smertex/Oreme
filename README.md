@@ -1,6 +1,7 @@
 XML структура:
 
-> <?xml version='1.0' encoding='utf-8'?>
+[!IMPORTANT]
+<?xml version='1.0' encoding='utf-8'?>
 <oreme-configuration>
     <connection-manager-configuration>
         <property name="connection.url"></property>
