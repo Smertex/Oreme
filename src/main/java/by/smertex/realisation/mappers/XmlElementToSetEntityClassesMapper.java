@@ -5,28 +5,30 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class XmlElementToListEntityClassesMapper implements Mapper<List<String>, Node> {
+public class XmlElementToSetEntityClassesMapper implements Mapper<Set<String>, Node> {
 
-    private static final XmlElementToListEntityClassesMapper INSTANCE = new XmlElementToListEntityClassesMapper();
+    private static final XmlElementToSetEntityClassesMapper INSTANCE = new XmlElementToSetEntityClassesMapper();
 
     @Override
-    public List<String> mapFrom(Node node) {
+    public Set<String> mapFrom(Node node) {
         NodeList xmlEntitiesClasses = node.getChildNodes();
         return IntStream.range(0, xmlEntitiesClasses.getLength())
                 .mapToObj(xmlEntitiesClasses::item)
                 .filter(item -> item.getNodeName().equals("mapping"))
                 .map(item -> item.getAttributes().getNamedItem("class").getNodeValue())
-                .toList();
+                .collect(Collectors.toSet());
 
     }
 
-    public static XmlElementToListEntityClassesMapper getInstance(){
+    public static XmlElementToSetEntityClassesMapper getInstance(){
         return INSTANCE;
     }
 
-    private XmlElementToListEntityClassesMapper(){
+    private XmlElementToSetEntityClassesMapper(){
 
     }
 }

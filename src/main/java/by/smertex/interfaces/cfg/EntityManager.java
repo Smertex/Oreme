@@ -1,20 +1,27 @@
 package by.smertex.interfaces.cfg;
 
-import by.smertex.exceptions.cfg.CreateEntityInstanceException;
 
-import java.lang.reflect.InvocationTargetException;
+import by.smertex.annotation.entity.classes.Entity;
+import by.smertex.annotation.entity.classes.Table;
+import by.smertex.exceptions.cfg.ClassNotEntity;
+import by.smertex.exceptions.cfg.ClassNotFound;
 
 public interface EntityManager {
 
     String XML_ENTITIES_TAG = "entities";
 
-    Object getEntity(Class<?> key);
+    Boolean isEntity(Class<?> key);
 
-    static Object createEntityInstance(Class<?> clazz){
+    static void validationEntity(Class<?> clazz){
+        if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
+            throw new ClassNotEntity(new RuntimeException());
+    }
+
+    static Class<?> stringToClass(String classPath){
         try {
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new CreateEntityInstanceException(e);
+            return Class.forName(classPath);
+        } catch (ClassNotFoundException e) {
+            throw new ClassNotFound(new RuntimeException());
         }
     }
 }

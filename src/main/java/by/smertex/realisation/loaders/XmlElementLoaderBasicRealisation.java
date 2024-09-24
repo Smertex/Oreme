@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class XmlElementLoaderBasicRealisation implements XmlElementLoader {
+
     private static final XmlElementLoaderBasicRealisation INSTANCE = new XmlElementLoaderBasicRealisation();
 
     private final Map<String, Node> xmlElements = new HashMap<>();
