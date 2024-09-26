@@ -3,23 +3,23 @@ package by.smertex.realisation.session;
 import by.smertex.exceptions.session.SessionException;
 import by.smertex.interfaces.session.Session;
 import by.smertex.interfaces.session.Transaction;
-import by.smertex.realisation.elements.CrudTemplate;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class SessionBasicRealisation implements Session {
-
-    private final CrudTemplate crudTemplate;
-
-    private final Object entity;
+    private final Class<?> entity;
 
     private Transaction transaction;
 
+    private Connection connection;
+
     @Override
     public void beginTransaction() {
-        this.transaction = new TransactionBasicRealisation();
-        //this.transaction.begin();
+        this.transaction = new TransactionBasicRealisation(connection);
+        this.transaction.begin();
     }
 
     @Override
@@ -54,12 +54,16 @@ public class SessionBasicRealisation implements Session {
     }
 
     @Override
-    public void close() throws SessionException {
-        transaction.commit();
+    public void close() {
+        if(transaction != null) transaction.commit();
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
     }
 
-    public SessionBasicRealisation(Object entity){
-        this.crudTemplate = new CrudTemplate();
+    public SessionBasicRealisation(Class<?> entity){
         this.entity = entity;
     }
 }

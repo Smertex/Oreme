@@ -7,6 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Session extends Closeable {
+    String SELECT = "SELECT %s FROM %s.%s";
+
+    String WHERE = "WHERE %s";
+
+    String JOIN = "JOIN %s ON %s";
+
     void beginTransaction();
 
     Transaction getTransaction();
@@ -22,5 +28,5 @@ public interface Session extends Closeable {
     boolean delete();
 
     @Override
-    void close() throws SessionException;
+    void close();
 }

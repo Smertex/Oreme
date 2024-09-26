@@ -9,19 +9,34 @@ import java.sql.SQLException;
 
 public class TransactionBasicRealisation implements Transaction {
 
-    private Connection connection;
+    private final Connection connection;
+
+    protected TransactionBasicRealisation(Connection connection){
+        this.connection = connection;
+    }
 
     @Override
-    public void begin(Connection connection, IsolationLevel level) {
-        this.connection = connection;
-        setIsolationLevel(level);
+    public void begin() {
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new TransactionException(e);
+        }
+    }
+
+    @Override
+    public void rollback() {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            throw new TransactionException(e);
+        }
     }
 
     @Override
     public void commit(){
         try {
             connection.commit();
-            connection.close();
         } catch (SQLException e) {
             throw new TransactionException(e);
         }
@@ -36,8 +51,4 @@ public class TransactionBasicRealisation implements Transaction {
         }
     }
 
-    @Override
-    public Connection getConnection() {
-        return connection;
-    }
 }
