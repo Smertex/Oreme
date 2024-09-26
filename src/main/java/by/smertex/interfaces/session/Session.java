@@ -1,6 +1,6 @@
 package by.smertex.interfaces.session;
 
-import by.smertex.exceptions.session.SessionException;
+import by.smertex.realisation.elements.IsolationLevel;
 
 import java.io.Closeable;
 import java.util.List;
@@ -26,6 +26,8 @@ public interface Session extends Closeable {
     Object save(Object entity);
 
     boolean delete();
+
+    void setIsolationLevel(IsolationLevel level);
 
     @Override
     void close();
