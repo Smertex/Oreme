@@ -2,13 +2,12 @@ package by.smertex.interfaces.session;
 
 import by.smertex.realisation.elements.IsolationLevel;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 public interface Transaction {
-    void begin() throws SQLException;
+    void begin(java.sql.Connection connection, IsolationLevel level);
 
-    void commit() throws SQLException;
+    void commit();
 
-    void setIsolationLevel(IsolationLevel level) throws SQLException;
+    void setIsolationLevel(IsolationLevel level);
+
+    java.sql.Connection getConnection();
 }

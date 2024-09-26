@@ -55,7 +55,7 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public void close() throws SessionException {
-
+        transaction.commit();
     }
 
     public SessionBasicRealisation(Object entity){
