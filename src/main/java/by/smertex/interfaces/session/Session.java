@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Session extends Closeable {
-    String SELECT = "SELECT %s FROM %s.%s";
+    String SELECT = "SELECT %s FROM %s";
 
     String WHERE = "WHERE %s";
 

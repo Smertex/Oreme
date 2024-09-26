@@ -3,7 +3,7 @@ package by.smertex.interfaces.session;
 public interface Transaction {
     void begin();
 
-    void sqlInput(String sql);
+    Object sqlInput(String sql);
 
     void rollback();
 
