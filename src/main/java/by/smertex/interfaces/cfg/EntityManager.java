@@ -12,12 +12,12 @@ public interface EntityManager {
 
     Boolean isEntity(Class<?> key);
 
-    static void validationEntity(Class<?> clazz){
+    default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
             throw new ClassNotEntity(new RuntimeException());
     }
 
-    static Class<?> stringToClass(String classPath){
+    default Class<?> stringToClass(String classPath){
         try {
             return Class.forName(classPath);
         } catch (ClassNotFoundException e) {

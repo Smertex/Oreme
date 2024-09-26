@@ -32,15 +32,15 @@ public class ConnectionManagerBasicRealisation implements ConnectionManager {
     }
 
     public void init(){
-        ConnectionManager.loadDriver(connectionManagerConfiguration.connectionDriverClass());
+        loadDriver(connectionManagerConfiguration.connectionDriverClass());
         feelConnectionPool(connectionManagerConfiguration.poolSize());
     }
 
     private void feelConnectionPool(Integer size){
         for(int i = 0; i < size; i++){
-            connectionPool.add(proxyConnection(ConnectionManager.openConnection(connectionManagerConfiguration.connectionUrl(),
-                                                                 connectionManagerConfiguration.connectionUsername(),
-                                                                 connectionManagerConfiguration.password())));
+            connectionPool.add(proxyConnection(openConnection(connectionManagerConfiguration.connectionUrl(),
+                                                              connectionManagerConfiguration.connectionUsername(),
+                                                              connectionManagerConfiguration.password())));
         }
     }
 

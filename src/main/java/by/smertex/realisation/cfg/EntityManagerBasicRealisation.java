@@ -27,8 +27,8 @@ public class EntityManagerBasicRealisation implements EntityManager {
     private void initSetEntities(){
         Set<String> classes = mapper.mapFrom(xmlElementLoader.getNodeByTag(EntityManager.XML_ENTITIES_TAG));
         for(String stringClass: classes){
-            Class<?> clazz = EntityManager.stringToClass(stringClass);
-            EntityManager.validationEntity(clazz);
+            Class<?> clazz = stringToClass(stringClass);
+            validationEntity(clazz);
             entities.add(clazz);
         }
     }

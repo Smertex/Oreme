@@ -13,7 +13,7 @@ public interface ConnectionManager {
 
     Connection getConnection();
 
-    static void loadDriver(String driverClass){
+    default void loadDriver(String driverClass){
         try {
             Class.forName(driverClass);
         } catch (ClassNotFoundException e) {
@@ -21,7 +21,7 @@ public interface ConnectionManager {
         }
     }
 
-    static Connection openConnection(String connectionUrl, String connectionUsername, String password){
+    default Connection openConnection(String connectionUrl, String connectionUsername, String password){
         try {
             return DriverManager.getConnection(connectionUrl, connectionUsername, password);
         } catch (SQLException e) {
