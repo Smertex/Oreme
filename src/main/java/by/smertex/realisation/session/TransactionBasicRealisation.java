@@ -6,7 +6,6 @@ import by.smertex.interfaces.session.Transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class TransactionBasicRealisation implements Transaction {
 
@@ -18,16 +17,6 @@ public class TransactionBasicRealisation implements Transaction {
     public void begin() {
         if(session == null || connection == null)
             throw new TransactionException(new RuntimeException());
-    }
-
-    @Override
-    public Object sqlInput(String sql) {
-        try {
-            Statement statement = connection.createStatement();
-            return statement.executeQuery(sql);
-        } catch (SQLException e) {
-            throw new TransactionException(e);
-        }
     }
 
     @Override
