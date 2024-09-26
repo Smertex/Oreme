@@ -6,6 +6,9 @@ import by.smertex.interfaces.session.Transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransactionBasicRealisation implements Transaction {
 
@@ -13,27 +16,30 @@ public class TransactionBasicRealisation implements Transaction {
 
     private final Connection connection;
 
+    private List<String> sqlQueries;
+
     @Override
     public void begin() {
-        try {
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new TransactionException(e);
-        }
+        if(session == null || connection == null)
+            throw new TransactionException(new RuntimeException());
+        sqlQueries = new ArrayList<>();
+    }
+
+    @Override
+    public void sqlInput(String sql) {
+        sqlQueries.add(sql);
     }
 
     @Override
     public void rollback() {
-        try {
-            connection.rollback();
-        } catch (SQLException e) {
-            throw new TransactionException(e);
-        }
+        begin();
     }
 
     @Override
     public void commit(){
         try {
+            Statement statement = connection.createStatement();
+            for(String sql: sqlQueries) statement.execute(sql);
             connection.commit();
             deleteThisInstance();
         } catch (SQLException e) {
