@@ -14,7 +14,7 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
     private final InitializationManager initializationManager = InitializationManagerBasicRealisation.getInstance();
 
     @Override
-    public Session getSession() {
+    public Session openSession() {
         return new SessionBasicRealisation(connectionManager.getConnection(),
                 initializationManager.getConfiguration().isolationLevel());
     }

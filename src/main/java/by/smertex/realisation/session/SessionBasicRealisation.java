@@ -1,6 +1,7 @@
 package by.smertex.realisation.session;
 
 import by.smertex.exceptions.session.SessionException;
+import by.smertex.interfaces.session.QueryBuilder;
 import by.smertex.interfaces.session.Session;
 import by.smertex.interfaces.session.Transaction;
 import by.smertex.realisation.elements.IsolationLevel;
@@ -12,6 +13,8 @@ import java.util.Optional;
 
 public class SessionBasicRealisation implements Session {
     private final Connection connection;
+
+    private final QueryBuilder queryBuilder;
 
     private Transaction transaction;
 
@@ -37,27 +40,27 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public Optional<Object> find(Class<?> clazz, Long id) {
-        return Optional.empty();
+        return queryBuilder.find(clazz, id);
     }
 
     @Override
     public List<Object> findAll() {
-        return null;
+        return queryBuilder.findAll();
     }
 
     @Override
     public boolean update(Object entity) {
-        return false;
+        return queryBuilder.update(entity);
     }
 
     @Override
     public Object save(Object entity) {
-        return null;
+        return queryBuilder.save(entity);
     }
 
     @Override
     public boolean delete() {
-        return false;
+        return queryBuilder.delete();
     }
 
     @Override
@@ -78,5 +81,6 @@ public class SessionBasicRealisation implements Session {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
+        this.queryBuilder = QueryBuilderBasicRealisation.getInstance();
     }
 }

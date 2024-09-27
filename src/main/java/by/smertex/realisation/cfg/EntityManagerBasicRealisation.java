@@ -7,8 +7,8 @@ import by.smertex.realisation.loaders.XmlElementLoaderBasicRealisation;
 import by.smertex.realisation.mappers.XmlElementToSetEntityClassesMapper;
 import org.w3c.dom.Node;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class EntityManagerBasicRealisation implements EntityManager {
 
@@ -18,7 +18,7 @@ public class EntityManagerBasicRealisation implements EntityManager {
 
     private final Mapper<Set<String>, Node> mapper = XmlElementToSetEntityClassesMapper.getInstance();
 
-    private final Set<Class<?>> entities = new HashSet<>();
+    private final Map<Class<?>, List<Field>> entities = new HashMap<>();
 
     private void init(){
         initSetEntities();
@@ -29,13 +29,17 @@ public class EntityManagerBasicRealisation implements EntityManager {
         for(String stringClass: classes){
             Class<?> clazz = stringToClass(stringClass);
             validationEntity(clazz);
-            entities.add(clazz);
+            entities.put(clazz, createListFields(clazz));
         }
     }
 
     @Override
-    public Boolean isEntity(Class<?> entity) {
-        return entities.contains(entity);
+    public List<Field> getClassFields(Class<?> key) {
+        return entities.get(key);
+    }
+
+    private List<Field> createListFields(Class<?> clazz){
+        return Arrays.stream(clazz.getDeclaredFields()).toList();
     }
 
     public static EntityManagerBasicRealisation getInstance() {
