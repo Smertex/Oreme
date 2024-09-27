@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class SessionBasicRealisation implements Session {
-    private Connection connection;
-
-    private final Class<?> entity;
+    private final Connection connection;
 
     private Transaction transaction;
 
@@ -72,9 +70,13 @@ public class SessionBasicRealisation implements Session {
         }
     }
 
-    public SessionBasicRealisation(Connection connection, Class<?> entity, IsolationLevel level){
+    protected SessionBasicRealisation(Connection connection, IsolationLevel level){
         this.connection = connection;
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
         setIsolationLevel(level);
-        this.entity = entity;
     }
 }
