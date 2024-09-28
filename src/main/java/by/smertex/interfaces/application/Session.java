@@ -1,4 +1,4 @@
-package by.smertex.interfaces.session;
+package by.smertex.interfaces.application;
 
 import by.smertex.realisation.elements.IsolationLevel;
 

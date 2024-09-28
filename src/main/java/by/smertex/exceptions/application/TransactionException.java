@@ -1,4 +1,4 @@
-package by.smertex.exceptions.session;
+package by.smertex.exceptions.application;
 
 public class TransactionException extends RuntimeException{
     public TransactionException(Throwable e){

@@ -1,6 +1,6 @@
-package by.smertex.interfaces.session;
+package by.smertex.interfaces.application;
 
-public interface QueryBuilder extends Crud{
+public interface QueryBuilder {
     String SELECT_SQL = "SELECT %s ";
 
     String FROM_SQL = "FROM %s ";

@@ -1,4 +1,4 @@
-package by.smertex.interfaces.session;
+package by.smertex.interfaces.application;
 
 import java.util.List;
 import java.util.Optional;

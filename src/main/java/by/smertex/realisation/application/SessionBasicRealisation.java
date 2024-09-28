@@ -1,9 +1,10 @@
-package by.smertex.realisation.session;
+package by.smertex.realisation.application;
 
-import by.smertex.exceptions.session.SessionException;
-import by.smertex.interfaces.session.QueryBuilder;
-import by.smertex.interfaces.session.Session;
-import by.smertex.interfaces.session.Transaction;
+import by.smertex.exceptions.application.SessionException;
+import by.smertex.interfaces.application.QueryBuilder;
+import by.smertex.interfaces.application.Session;
+import by.smertex.interfaces.application.Transaction;
+import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.sql.Connection;
@@ -14,9 +15,9 @@ import java.util.Optional;
 public class SessionBasicRealisation implements Session {
     private final Connection connection;
 
-    private final QueryBuilder queryBuilder;
-
     private Transaction transaction;
+
+    private EntityManager entityManager;
 
     @Override
     public void beginTransaction() {
@@ -40,27 +41,27 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public Optional<Object> find(Class<?> clazz, Long id) {
-        return queryBuilder.find(clazz, id);
+        return Optional.empty();
     }
 
     @Override
     public List<Object> findAll() {
-        return queryBuilder.findAll();
+        return null;
     }
 
     @Override
     public boolean update(Object entity) {
-        return queryBuilder.update(entity);
+        return false;
     }
 
     @Override
     public Object save(Object entity) {
-        return queryBuilder.save(entity);
+        return null;
     }
 
     @Override
     public boolean delete() {
-        return queryBuilder.delete();
+        return false;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class SessionBasicRealisation implements Session {
         }
     }
 
-    protected SessionBasicRealisation(Connection connection, IsolationLevel level){
+    protected SessionBasicRealisation(EntityManager entityManager, Connection connection, IsolationLevel level){
         this.connection = connection;
         try {
             connection.setAutoCommit(false);
@@ -81,6 +82,6 @@ public class SessionBasicRealisation implements Session {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
-        this.queryBuilder = QueryBuilderBasicRealisation.getInstance();
+        this.entityManager = entityManager;
     }
 }
