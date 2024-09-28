@@ -2,7 +2,6 @@ package by.smertex.realisation.application;
 
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.cfg.EntityManager;
-import by.smertex.interfaces.cfg.InitializationManager;
 import by.smertex.interfaces.application.Session;
 import by.smertex.interfaces.application.SessionFactory;
 import by.smertex.realisation.elements.IsolationLevel;

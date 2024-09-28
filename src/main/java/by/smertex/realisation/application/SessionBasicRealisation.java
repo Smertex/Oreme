@@ -1,7 +1,6 @@
 package by.smertex.realisation.application;
 
 import by.smertex.exceptions.application.SessionException;
-import by.smertex.interfaces.application.QueryBuilder;
 import by.smertex.interfaces.application.Session;
 import by.smertex.interfaces.application.Transaction;
 import by.smertex.interfaces.cfg.EntityManager;
@@ -15,9 +14,9 @@ import java.util.Optional;
 public class SessionBasicRealisation implements Session {
     private final Connection connection;
 
-    private Transaction transaction;
+    private final EntityManager entityManager;
 
-    private EntityManager entityManager;
+    private Transaction transaction;
 
     @Override
     public void beginTransaction() {
