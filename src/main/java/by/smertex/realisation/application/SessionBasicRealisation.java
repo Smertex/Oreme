@@ -1,20 +1,23 @@
 package by.smertex.realisation.application;
 
 import by.smertex.exceptions.application.SessionException;
+import by.smertex.interfaces.application.InstanceBuilder;
+import by.smertex.interfaces.application.QueryBuilder;
 import by.smertex.interfaces.application.Session;
 import by.smertex.interfaces.application.Transaction;
-import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.realisation.elements.IsolationLevel;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class SessionBasicRealisation implements Session {
     private final Connection connection;
 
-    private final EntityManager entityManager;
+    private final QueryBuilder queryBuilder;
+
+    private final InstanceBuilder instanceBuilder;
 
     private Transaction transaction;
 
@@ -39,12 +42,12 @@ public class SessionBasicRealisation implements Session {
     }
 
     @Override
-    public Optional<Object> find(Class<?> clazz, Long id) {
+    public Optional<Object> find(Class<?> entity, Long id) {
         return Optional.empty();
     }
 
     @Override
-    public List<Object> findAll() {
+    public List<Object> findAll(Class<?> entity) {
         return null;
     }
 
@@ -59,7 +62,7 @@ public class SessionBasicRealisation implements Session {
     }
 
     @Override
-    public boolean delete() {
+    public boolean delete(Object entity) {
         return false;
     }
 
@@ -73,7 +76,7 @@ public class SessionBasicRealisation implements Session {
         }
     }
 
-    protected SessionBasicRealisation(EntityManager entityManager, Connection connection, IsolationLevel level){
+    protected SessionBasicRealisation(QueryBuilder queryBuilder, Connection connection, IsolationLevel level, InstanceBuilder instanceBuilder){
         this.connection = connection;
         try {
             connection.setAutoCommit(false);
@@ -81,6 +84,7 @@ public class SessionBasicRealisation implements Session {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
-        this.entityManager = entityManager;
+        this.queryBuilder = queryBuilder;
+        this.instanceBuilder = instanceBuilder;
     }
 }

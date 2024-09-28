@@ -1,5 +1,6 @@
 package by.smertex.realisation.cfg;
 
+import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
@@ -39,7 +40,9 @@ public class EntityManagerBasicRealisation implements EntityManager {
     }
 
     private List<Field> createListFields(Class<?> clazz){
-        return Arrays.stream(clazz.getDeclaredFields()).toList();
+        return Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> !field.getDeclaredAnnotation(Column.class).notNull())
+                .toList();
     }
 
     public static EntityManagerBasicRealisation getInstance() {

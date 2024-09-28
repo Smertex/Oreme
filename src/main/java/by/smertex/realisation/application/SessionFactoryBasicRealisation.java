@@ -1,5 +1,7 @@
 package by.smertex.realisation.application;
 
+import by.smertex.interfaces.application.InstanceBuilder;
+import by.smertex.interfaces.application.QueryBuilder;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.application.Session;
@@ -10,20 +12,25 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final ConnectionManager connectionManager;
 
-    private final EntityManager entityManager;
-
     private final IsolationLevel basicIsolationLevel;
+
+    private final QueryBuilder queryBuilder;
+
+    private final InstanceBuilder instanceBuilder;
 
     @Override
     public Session openSession() {
-        return new SessionBasicRealisation(entityManager,
+        return new SessionBasicRealisation(
+                queryBuilder,
                 connectionManager.getConnection(),
-                basicIsolationLevel);
+                basicIsolationLevel,
+                instanceBuilder);
     }
 
     protected SessionFactoryBasicRealisation(ConnectionManager connectionManager, EntityManager entityManager, IsolationLevel basicIsolationLevel) {
         this.connectionManager = connectionManager;
-        this.entityManager = entityManager;
         this.basicIsolationLevel = basicIsolationLevel;
+        this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
+        this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager);
     }
 }

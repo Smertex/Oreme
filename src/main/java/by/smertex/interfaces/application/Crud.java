@@ -5,14 +5,14 @@ import java.util.Optional;
 
 public interface Crud {
 
-    Optional<Object> find(Class<?> clazz, Long id);
+    Optional<Object> find(Class<?> entity, Long id);
 
-    List<Object> findAll();
+    List<Object> findAll(Class<?> entity);
 
     boolean update(Object entity);
 
     Object save(Object entity);
 
-    boolean delete();
+    boolean delete(Object entity);
 
 }

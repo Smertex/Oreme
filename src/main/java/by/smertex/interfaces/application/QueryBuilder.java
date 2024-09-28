@@ -14,4 +14,8 @@ public interface QueryBuilder {
     String SAVE_SQL = "INSERT INTO %s (%s) VALUES (%s)";
 
     String DELETE_SQL = "DELETE %s ";
+
+    String selectFieldsSql(Class<?> entity);
+
+    String fromFieldsSql(Class<?> entity);
 }
