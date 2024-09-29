@@ -48,7 +48,17 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public List<Object> findAll(Class<?> entity) {
-        return null;
+        String sql = queryBuilder.selectFieldsSql(entity);
+        List<Object> entities = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next())
+                entities.add(instanceBuilder.buildInstance(entity, resultSet));
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
+        return entities;
     }
 
     @Override

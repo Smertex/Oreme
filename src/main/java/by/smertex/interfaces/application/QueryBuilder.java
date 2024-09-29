@@ -1,7 +1,9 @@
 package by.smertex.interfaces.application;
 
-public interface QueryBuilder {
+public interface QueryBuilder extends EntityCollector{
     String SELECT_SQL = "SELECT %s ";
+
+    String AS_SQL = "%s AS %s";
 
     String FROM_SQL = "FROM %s ";
 
@@ -16,6 +18,4 @@ public interface QueryBuilder {
     String DELETE_SQL = "DELETE %s ";
 
     String selectFieldsSql(Class<?> entity);
-
-    String fromFieldsSql(Class<?> entity);
 }

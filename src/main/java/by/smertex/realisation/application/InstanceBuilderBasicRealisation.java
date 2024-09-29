@@ -1,5 +1,6 @@
 package by.smertex.realisation.application;
 
+import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.InstanceBuilderException;
 import by.smertex.interfaces.application.InstanceBuilder;
@@ -17,8 +18,25 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
 
     @Override
     public Object buildInstance(Class<?> clazz, ResultSet fieldValues) {
-        Object object = instanceCreate(clazz);
-        substitutionValues(object, fieldValues);
+        return substitutionValues(clazz, fieldValues);
+    }
+
+    private Object substitutionValues(Class<?> entity, ResultSet fieldValues){
+        Object object = instanceCreate(entity);
+        List<Field> fields =  entityManager.getClassFields(object.getClass());
+
+        for(Field field: fields){
+            try {
+                field.setAccessible(true);
+                String row = entity.getAnnotation(Table.class).name() + "_" + field.getAnnotation(Column.class).name();
+                Object relationshipEntity = !fieldHaveAnnotationRelationship(field) ?
+                        fieldValues.getObject(row) : substitutionValues(field.getType(), fieldValues);
+                field.set(object, relationshipEntity);
+            } catch (IllegalAccessException | SQLException e) {
+                throw new InstanceBuilderException(e);
+            }
+        }
+
         return object;
     }
 
@@ -27,19 +45,6 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new InstanceBuilderException(e);
-        }
-    }
-
-    private void substitutionValues(Object entity, ResultSet fieldValues){
-        List<Field> fields =  entityManager.getClassFields(entity.getClass());
-
-        for(Field field: fields){
-            try {
-                field.setAccessible(true);
-                field.set(entity, fieldValues.getObject(field.getAnnotation(Column.class).name()));
-            } catch (IllegalAccessException | SQLException e) {
-                throw new InstanceBuilderException(e);
-            }
         }
     }
 

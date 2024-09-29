@@ -11,5 +11,4 @@ public interface Session extends Closeable, Crud {
     Transaction getTransaction();
 
     void setIsolationLevel(IsolationLevel level);
-
 }
