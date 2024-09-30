@@ -1,14 +1,11 @@
 package by.smertex.realisation.application;
 
-import by.smertex.annotation.entity.fields.communications.OneToMany;
 import by.smertex.exceptions.application.SessionException;
 import by.smertex.interfaces.application.*;
 import by.smertex.realisation.elements.IsolationLevel;
 
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
