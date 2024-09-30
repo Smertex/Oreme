@@ -41,7 +41,7 @@ public class EntityManagerBasicRealisation implements EntityManager {
 
     private List<Field> createListFields(Class<?> clazz){
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> !field.getDeclaredAnnotation(Column.class).notNull())
+                .filter(field -> field.getDeclaredAnnotation(Column.class) != null)
                 .toList();
     }
 

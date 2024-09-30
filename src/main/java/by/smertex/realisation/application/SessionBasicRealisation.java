@@ -1,14 +1,14 @@
 package by.smertex.realisation.application;
 
+import by.smertex.annotation.entity.fields.communications.OneToMany;
 import by.smertex.exceptions.application.SessionException;
-import by.smertex.interfaces.application.InstanceBuilder;
-import by.smertex.interfaces.application.QueryBuilder;
-import by.smertex.interfaces.application.Session;
-import by.smertex.interfaces.application.Transaction;
+import by.smertex.interfaces.application.*;
 import by.smertex.realisation.elements.IsolationLevel;
 
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +43,28 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public Optional<Object> find(Class<?> entity, Long id) {
-        return Optional.empty();
+        String sql = queryBuilder.selectWhereSql(entity, id);
+
+        try(PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()) {
+            if(resultSet.next()) return Optional.of(instanceBuilder.buildInstance(entity, resultSet));
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
+    }
+
+    @Override
+    public Optional<Object> find(Class<?> entity, CompositeKey compositeKey) {
+        String sql = queryBuilder.selectWhereSql(entity, compositeKey);
+
+        try(PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()) {
+            if(resultSet.next()) return Optional.of(instanceBuilder.buildInstance(entity, resultSet));
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
     }
 
     @Override

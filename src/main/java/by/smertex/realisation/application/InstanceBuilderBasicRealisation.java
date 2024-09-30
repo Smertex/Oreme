@@ -22,22 +22,15 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
     }
 
     private Object substitutionValues(Class<?> entity, ResultSet fieldValues){
-        Object object = instanceCreate(entity);
-        List<Field> fields =  entityManager.getClassFields(object.getClass());
+        Object instance = instanceCreate(entity);
+        List<Field> fields =  entityManager.getClassFields(instance.getClass());
 
         for(Field field: fields){
-            try {
-                field.setAccessible(true);
-                String row = entity.getAnnotation(Table.class).name() + "_" + field.getAnnotation(Column.class).name();
-                Object relationshipEntity = !fieldHaveAnnotationRelationship(field) ?
-                        fieldValues.getObject(row) : substitutionValues(field.getType(), fieldValues);
-                field.set(object, relationshipEntity);
-            } catch (IllegalAccessException | SQLException e) {
-                throw new InstanceBuilderException(e);
-            }
+            Object relationshipEntity = getRelationshipEntity(entity, fieldValues, field);
+            fieldSet(field, instance, relationshipEntity);
         }
 
-        return object;
+        return instance;
     }
 
     private Object instanceCreate(Class<?> clazz){
@@ -46,6 +39,28 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new InstanceBuilderException(e);
         }
+    }
+
+    private void fieldSet(Field field, Object instance, Object relationshipEntity){
+        try {
+            field.setAccessible(true);
+            field.set(instance, relationshipEntity);
+        } catch (IllegalAccessException e) {
+            throw new InstanceBuilderException(e);
+        }
+    }
+
+    private Object getRelationshipEntity(Class<?> entity, ResultSet fieldValues, Field field){
+        try {
+            return !fieldHaveAnnotationRelationship(field) ?
+                    fieldValues.getObject(rowGenerate(entity, field)) : substitutionValues(field.getType(), fieldValues);
+        } catch (SQLException e) {
+            throw new InstanceBuilderException(e);
+        }
+    }
+
+    private String rowGenerate(Class<?> entity, Field field){
+        return entity.getAnnotation(Table.class).name() + COLUMN_NAME_SEPARATOR + field.getAnnotation(Column.class).name();
     }
 
     protected InstanceBuilderBasicRealisation(EntityManager entityManager) {

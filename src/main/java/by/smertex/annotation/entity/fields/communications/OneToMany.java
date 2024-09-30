@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 @Relationship
 public @interface OneToMany {
     String mappedBy();
+
+    Class<?> tableClass();
 }

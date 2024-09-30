@@ -3,6 +3,7 @@ package by.smertex.interfaces.application;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.io.Closeable;
+import java.util.Optional;
 
 public interface Session extends Closeable, Crud {
 
@@ -11,4 +12,6 @@ public interface Session extends Closeable, Crud {
     Transaction getTransaction();
 
     void setIsolationLevel(IsolationLevel level);
+
+    Optional<Object> find(Class<?> entity, CompositeKey compositeKey);
 }
