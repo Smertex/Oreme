@@ -1,7 +1,7 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
 import by.smertex.exceptions.application.SessionException;
-import by.smertex.interfaces.application.*;
+import by.smertex.interfaces.application.session.*;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.sql.*;

@@ -1,9 +1,9 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.InstanceBuilderException;
-import by.smertex.interfaces.application.InstanceBuilder;
+import by.smertex.interfaces.application.session.InstanceBuilder;
 import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.reflect.Field;

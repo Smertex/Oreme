@@ -1,11 +1,11 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.QueryBuilderException;
-import by.smertex.interfaces.application.CompositeKey;
-import by.smertex.interfaces.application.QueryBuilder;
+import by.smertex.interfaces.application.session.CompositeKey;
+import by.smertex.interfaces.application.session.QueryBuilder;
 import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.annotation.Annotation;

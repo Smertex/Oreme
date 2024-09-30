@@ -1,10 +1,10 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.AnnotationColumnNotFound;
 import by.smertex.exceptions.application.ColumnNotId;
-import by.smertex.interfaces.application.CompositeKey;
+import by.smertex.interfaces.application.session.CompositeKey;
 
 import java.util.Arrays;
 import java.util.HashMap;

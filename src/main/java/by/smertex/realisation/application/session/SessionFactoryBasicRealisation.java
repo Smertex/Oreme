@@ -1,11 +1,11 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
-import by.smertex.interfaces.application.InstanceBuilder;
-import by.smertex.interfaces.application.QueryBuilder;
+import by.smertex.interfaces.application.session.InstanceBuilder;
+import by.smertex.interfaces.application.session.QueryBuilder;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.cfg.EntityManager;
-import by.smertex.interfaces.application.Session;
-import by.smertex.interfaces.application.SessionFactory;
+import by.smertex.interfaces.application.session.Session;
+import by.smertex.interfaces.application.session.SessionFactory;
 import by.smertex.realisation.elements.IsolationLevel;
 
 public class SessionFactoryBasicRealisation implements SessionFactory {
@@ -27,7 +27,7 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                 instanceBuilder);
     }
 
-    protected SessionFactoryBasicRealisation(ConnectionManager connectionManager, EntityManager entityManager, IsolationLevel basicIsolationLevel) {
+    public SessionFactoryBasicRealisation(ConnectionManager connectionManager, EntityManager entityManager, IsolationLevel basicIsolationLevel) {
         this.connectionManager = connectionManager;
         this.basicIsolationLevel = basicIsolationLevel;
         this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);

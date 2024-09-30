@@ -1,8 +1,8 @@
-package by.smertex.realisation.application;
+package by.smertex.realisation.application.session;
 
 import by.smertex.exceptions.application.TransactionException;
-import by.smertex.interfaces.application.Session;
-import by.smertex.interfaces.application.Transaction;
+import by.smertex.interfaces.application.session.Session;
+import by.smertex.interfaces.application.session.Transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;

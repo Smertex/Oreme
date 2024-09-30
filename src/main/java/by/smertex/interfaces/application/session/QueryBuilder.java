@@ -1,6 +1,9 @@
-package by.smertex.interfaces.application;
+package by.smertex.interfaces.application.session;
 
-public interface QueryBuilder extends EntityCollector{
+import by.smertex.interfaces.application.session.CompositeKey;
+import by.smertex.interfaces.application.session.EntityCollector;
+
+public interface QueryBuilder extends EntityCollector {
     String SELECT_SQL = "SELECT %s \n";
 
     String AS_SQL = "%s AS %s";
