@@ -1,8 +1,5 @@
 package by.smertex.interfaces.application.session;
 
-import by.smertex.interfaces.application.session.CompositeKey;
-import by.smertex.interfaces.application.session.EntityCollector;
-
 public interface QueryBuilder extends EntityCollector {
     String SELECT_SQL = "SELECT %s \n";
 
