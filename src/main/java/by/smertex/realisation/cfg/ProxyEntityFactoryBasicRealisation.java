@@ -9,9 +9,11 @@ import by.smertex.interfaces.cfg.ProxyEntityFactory;
 import by.smertex.realisation.application.builders.InstanceBuilderBasicRealisation;
 import by.smertex.realisation.application.builders.ProxyEntityQueryBuilderBasicRealisation;
 
+import java.sql.Connection;
+
 public class ProxyEntityFactoryBasicRealisation implements ProxyEntityFactory {
 
-    private final ConnectionManager connectionManager;
+    private final Connection connection;
 
     private final ProxyEntityQueryBuilder proxyEntityQueryBuilder;
 
@@ -20,13 +22,13 @@ public class ProxyEntityFactoryBasicRealisation implements ProxyEntityFactory {
     @Override
     public ProxyEntity buildProxyEntity(Class<?> entity, Object id) {
         return new ProxyEntityBasicRealisation(entity, id,
-                connectionManager.getConnection(),
+                connection,
                 proxyEntityQueryBuilder,
                 instanceBuilder);
     }
 
     public ProxyEntityFactoryBasicRealisation(ConnectionManager connectionManager, EntityManager entityManager) {
-        this.connectionManager = connectionManager;
+        this.connection = connectionManager.getConnection();
         this.proxyEntityQueryBuilder = new ProxyEntityQueryBuilderBasicRealisation(entityManager);
         this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager);
     }

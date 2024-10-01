@@ -36,7 +36,6 @@ public class ProxyEntityBasicRealisation implements ProxyEntity {
     @Override
     public Object getEntity() {
         if(entity == null) createEntity();
-        close();
         return entity;
     }
 
@@ -49,15 +48,6 @@ public class ProxyEntityBasicRealisation implements ProxyEntity {
             ResultSet resultSet = preparedStatement.executeQuery()) {
             if(resultSet.next()) entity = instanceBuilder.buildInstance(entityClass, resultSet);
 
-        } catch (SQLException e) {
-            throw new ProxyEntityException(e);
-        }
-    }
-
-    @Override
-    public void close() {
-        try {
-            connection.close();
         } catch (SQLException e) {
             throw new ProxyEntityException(e);
         }
