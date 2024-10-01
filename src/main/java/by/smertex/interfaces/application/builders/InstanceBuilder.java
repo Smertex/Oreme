@@ -1,4 +1,4 @@
-package by.smertex.interfaces.application.session;
+package by.smertex.interfaces.application.builders;
 
 import java.sql.ResultSet;
 

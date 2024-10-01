@@ -1,9 +1,9 @@
-package by.smertex.realisation.application.session;
+package by.smertex.realisation.application.builders;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.InstanceBuilderException;
-import by.smertex.interfaces.application.session.InstanceBuilder;
+import by.smertex.interfaces.application.builders.InstanceBuilder;
 import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.reflect.Field;
@@ -63,7 +63,7 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
         return entity.getAnnotation(Table.class).name() + COLUMN_NAME_SEPARATOR + field.getAnnotation(Column.class).name();
     }
 
-    protected InstanceBuilderBasicRealisation(EntityManager entityManager) {
+    public InstanceBuilderBasicRealisation(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 }

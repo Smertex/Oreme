@@ -1,20 +1,27 @@
 package by.smertex.realisation.application.session;
 
+import by.smertex.annotation.entity.fields.columns.Column;
+import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.SessionException;
+import by.smertex.interfaces.application.builders.SessionQueryBuilder;
 import by.smertex.interfaces.application.session.*;
+import by.smertex.interfaces.cfg.ProxyEntity;
+import by.smertex.interfaces.cfg.ProxyEntityFactory;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class SessionBasicRealisation implements Session {
+
+    private final ProxyEntityFactory proxyEntityFactory;
+
+    private final SessionQueryBuilder sessionQueryBuilder;
+
     private final Connection connection;
-
-    private final QueryBuilder queryBuilder;
-
-    private final InstanceBuilder instanceBuilder;
 
     private Transaction transaction;
 
@@ -40,42 +47,29 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public Optional<Object> find(Class<?> entity, Long id) {
-        String sql = queryBuilder.selectWhereSql(entity, id);
-
-        try(PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery()) {
-            if(resultSet.next()) return Optional.of(instanceBuilder.buildInstance(entity, resultSet));
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new SessionException(e);
-        }
+        return Optional.of(proxyEntityFactory.buildProxyEntity(entity, id));
     }
 
     @Override
     public Optional<Object> find(Class<?> entity, CompositeKey compositeKey) {
-        String sql = queryBuilder.selectWhereSql(entity, compositeKey);
-
-        try(PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery()) {
-            if(resultSet.next()) return Optional.of(instanceBuilder.buildInstance(entity, resultSet));
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new SessionException(e);
-        }
+        return Optional.of(proxyEntityFactory.buildProxyEntity(entity, compositeKey));
     }
 
     @Override
     public List<Object> findAll(Class<?> entity) {
-        String sql = queryBuilder.selectFieldsSql(entity);
+        String sql = sessionQueryBuilder.selectSql(entity);
         List<Object> entities = new ArrayList<>();
 
-        try (PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next())
-                entities.add(instanceBuilder.buildInstance(entity, resultSet));
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery()){
+
+            while(resultSet.next()) entities.add(proxyEntityFactory
+                    .buildProxyEntity(entity, queryResultToCompositeKey(entity, resultSet)));
+
         } catch (SQLException e) {
             throw new SessionException(e);
         }
+
         return entities;
     }
 
@@ -104,7 +98,23 @@ public class SessionBasicRealisation implements Session {
         }
     }
 
-    protected SessionBasicRealisation(QueryBuilder queryBuilder, Connection connection, IsolationLevel level, InstanceBuilder instanceBuilder){
+    private CompositeKey queryResultToCompositeKey(Class<?> entity, ResultSet resultSet){
+        CompositeKey compositeKey = new CompositeKeyBasicRealisation(entity);
+        Arrays.stream(entity.getDeclaredFields())
+                .filter(column -> column.getDeclaredAnnotation(Id.class) != null)
+                .map(column -> column.getDeclaredAnnotation(Column.class).name())
+                .forEach(columnName -> {
+                    try {
+                        compositeKey.setValue(columnName, resultSet.getObject(columnName));
+                    } catch (SQLException e) {
+                        throw new SessionException(e);
+                    }
+                });
+
+        return compositeKey;
+    }
+
+    protected SessionBasicRealisation(Connection connection, IsolationLevel level, ProxyEntityFactory proxyEntityFactory, SessionQueryBuilder sessionQueryBuilder){
         this.connection = connection;
         try {
             connection.setAutoCommit(false);
@@ -112,7 +122,7 @@ public class SessionBasicRealisation implements Session {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
-        this.queryBuilder = queryBuilder;
-        this.instanceBuilder = instanceBuilder;
+        this.proxyEntityFactory = proxyEntityFactory;
+        this.sessionQueryBuilder = sessionQueryBuilder;
     }
 }

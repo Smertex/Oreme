@@ -1,11 +1,12 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.interfaces.application.session.InstanceBuilder;
-import by.smertex.interfaces.application.session.QueryBuilder;
+import by.smertex.interfaces.application.builders.SessionQueryBuilder;
 import by.smertex.interfaces.cfg.ConnectionManager;
-import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.application.session.Session;
 import by.smertex.interfaces.application.session.SessionFactory;
+import by.smertex.interfaces.cfg.EntityManager;
+import by.smertex.interfaces.cfg.ProxyEntityFactory;
+import by.smertex.realisation.application.builders.SessionQueryBuilderBasicRealisation;
 import by.smertex.realisation.elements.IsolationLevel;
 
 public class SessionFactoryBasicRealisation implements SessionFactory {
@@ -14,23 +15,24 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final IsolationLevel basicIsolationLevel;
 
-    private final QueryBuilder queryBuilder;
+    private final ProxyEntityFactory proxyEntityFactory;
 
-    private final InstanceBuilder instanceBuilder;
+    private final SessionQueryBuilder sessionQueryBuilder;
+
 
     @Override
     public Session openSession() {
         return new SessionBasicRealisation(
-                queryBuilder,
                 connectionManager.getConnection(),
                 basicIsolationLevel,
-                instanceBuilder);
+                proxyEntityFactory,
+                sessionQueryBuilder);
     }
 
-    public SessionFactoryBasicRealisation(ConnectionManager connectionManager, EntityManager entityManager, IsolationLevel basicIsolationLevel) {
+    public SessionFactoryBasicRealisation(ConnectionManager connectionManager, IsolationLevel basicIsolationLevel, ProxyEntityFactory proxyEntityManager, EntityManager entityManager) {
         this.connectionManager = connectionManager;
+        this.proxyEntityFactory = proxyEntityManager;
         this.basicIsolationLevel = basicIsolationLevel;
-        this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
-        this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager);
+        this.sessionQueryBuilder = new SessionQueryBuilderBasicRealisation(entityManager);
     }
 }
