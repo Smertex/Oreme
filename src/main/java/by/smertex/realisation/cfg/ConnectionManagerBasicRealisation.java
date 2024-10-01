@@ -5,8 +5,6 @@ import by.smertex.exceptions.cfg.TakeConnectionException;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
-import by.smertex.realisation.loaders.XmlElementLoaderBasicRealisation;
-import by.smertex.realisation.mappers.XmlElementToConnectionManagerConfigurationMapper;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Proxy;
@@ -16,13 +14,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ConnectionManagerBasicRealisation implements ConnectionManager {
 
-    private static final ConnectionManagerBasicRealisation INSTANCE = new ConnectionManagerBasicRealisation();
+    private final XmlElementLoader xmlElementLoader;
 
-    private final XmlElementLoader xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
+    private final Mapper<ConnectionManagerConfiguration, Node> mapper;
 
-    private final Mapper<ConnectionManagerConfiguration, Node> mapper = XmlElementToConnectionManagerConfigurationMapper.getInstance();
-
-    private final BlockingQueue<Connection> connectionPool = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Connection> connectionPool;
 
     private ConnectionManagerConfiguration connectionManagerConfiguration;
 
@@ -75,12 +71,13 @@ public class ConnectionManagerBasicRealisation implements ConnectionManager {
         }
     }
 
-    public static ConnectionManagerBasicRealisation getInstance() {
-        return INSTANCE;
-    }
-
-    private ConnectionManagerBasicRealisation(){
+    protected ConnectionManagerBasicRealisation(XmlElementLoader xmlElementLoader,
+                                             Mapper<ConnectionManagerConfiguration, Node> mapper){
+        this.xmlElementLoader = xmlElementLoader;
+        this.mapper = mapper;
+        connectionPool = new LinkedBlockingQueue<>();
         initConfiguration();
         init();
     }
+
 }

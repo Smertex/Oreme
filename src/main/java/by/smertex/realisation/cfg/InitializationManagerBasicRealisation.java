@@ -4,34 +4,29 @@ import by.smertex.interfaces.cfg.InitializationManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
 import by.smertex.realisation.elements.InitializationConfiguration;
-import by.smertex.realisation.loaders.XmlElementLoaderBasicRealisation;
-import by.smertex.realisation.mappers.XmlElementToInitializationConfigurationMapper;
 import org.w3c.dom.Node;
 
 public class InitializationManagerBasicRealisation implements InitializationManager {
 
-    private static final InitializationManagerBasicRealisation INSTANCE = new InitializationManagerBasicRealisation();
+    private final XmlElementLoader xmlElementLoader;
 
-    private final XmlElementLoader xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
+    private final Mapper<InitializationConfiguration, Node> mapper;
 
-    private final Mapper<InitializationConfiguration, Node> mapper = XmlElementToInitializationConfigurationMapper.getInstance();
-
-    private InitializationConfiguration initializationConfiguration;
-
-    private void initInitializationConfiguration(){
-        initializationConfiguration = mapper.mapFrom(xmlElementLoader.getNodeByTag(InitializationManager.XML_INITIALIZATION_CONFIGURATION_TAG));
-    }
+    private final InitializationConfiguration initializationConfiguration;
 
     @Override
     public InitializationConfiguration getConfiguration() {
         return initializationConfiguration;
     }
 
-    public static InitializationManagerBasicRealisation getInstance(){
-        return INSTANCE;
+    private InitializationConfiguration initInitializationConfiguration(){
+        return mapper.mapFrom(xmlElementLoader.getNodeByTag(InitializationManager.XML_INITIALIZATION_CONFIGURATION_TAG));
     }
 
-    private InitializationManagerBasicRealisation(){
-        initInitializationConfiguration();
+    protected InitializationManagerBasicRealisation(XmlElementLoader xmlElementLoader,
+                                                 Mapper<InitializationConfiguration, Node> mapper){
+        this.xmlElementLoader = xmlElementLoader;
+        this.mapper = mapper;
+        this.initializationConfiguration = initInitializationConfiguration();
     }
 }

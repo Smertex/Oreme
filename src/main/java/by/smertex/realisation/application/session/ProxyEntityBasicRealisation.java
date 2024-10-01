@@ -1,10 +1,10 @@
-package by.smertex.realisation.cfg;
+package by.smertex.realisation.application.session;
 
 import by.smertex.exceptions.cfg.ProxyEntityException;
 import by.smertex.interfaces.application.builders.InstanceBuilder;
 import by.smertex.interfaces.application.builders.ProxyEntityQueryBuilder;
 import by.smertex.interfaces.application.session.CompositeKey;
-import by.smertex.interfaces.cfg.ProxyEntity;
+import by.smertex.interfaces.application.session.ProxyEntity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

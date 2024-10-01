@@ -1,0 +1,67 @@
+package by.smertex.realisation.cfg;
+
+import by.smertex.interfaces.application.builders.*;
+import by.smertex.interfaces.application.session.*;
+import by.smertex.interfaces.cfg.*;
+import by.smertex.interfaces.loaders.*;
+import by.smertex.interfaces.mapper.Mapper;
+import by.smertex.realisation.application.builders.*;
+import by.smertex.realisation.application.session.*;
+import by.smertex.realisation.elements.*;
+import by.smertex.realisation.loaders.*;
+import by.smertex.realisation.mappers.*;
+import org.w3c.dom.Node;
+
+import java.sql.ResultSet;
+import java.util.Map;
+import java.util.Set;
+
+public class ConfigurationBasicRealisation implements Configuration{
+    private final XmlElementLoader xmlElementLoader;
+    private final ConnectionManager connectionManager;
+    private final InitializationManager initializationManager;
+    private final EntityManager entityManager;
+    private final ProxyEntityFactory proxyEntityFactory;
+    private final Mapper<Map<String, Object>, ResultSet> resultSetToMapMapper;
+    private final Mapper<ConnectionManagerConfiguration, Node> xmlElementToConnectionManagerConfigurationMapper;
+    private final Mapper<InitializationConfiguration, Node> xmlElementToInitializationConfigurationMapper;
+    private final Mapper<Set<String>, Node> xmlElementToSetEntityClassesMapper;
+    private final SessionQueryBuilder sessionQueryBuilder;
+    private final ProxyEntityQueryBuilder proxyEntityQueryBuilder;
+    private final InstanceBuilder instanceBuilder;
+
+    public ConfigurationBasicRealisation(){
+        this.xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
+
+        this.resultSetToMapMapper = ResultSetToMapMapper.getInstance();
+        this.xmlElementToConnectionManagerConfigurationMapper = XmlElementToConnectionManagerConfigurationMapper.getInstance();
+        this.xmlElementToInitializationConfigurationMapper = XmlElementToInitializationConfigurationMapper.getInstance();
+        this.xmlElementToSetEntityClassesMapper = XmlElementToSetEntityClassesMapper.getInstance();
+
+        this.connectionManager = new ConnectionManagerBasicRealisation(xmlElementLoader, xmlElementToConnectionManagerConfigurationMapper);
+        this.initializationManager = new InitializationManagerBasicRealisation(xmlElementLoader, xmlElementToInitializationConfigurationMapper);
+        this.entityManager = new EntityManagerBasicRealisation(xmlElementLoader, xmlElementToSetEntityClassesMapper);
+
+        this.sessionQueryBuilder = new SessionQueryBuilderBasicRealisation(entityManager);
+        this.proxyEntityQueryBuilder = new ProxyEntityQueryBuilderBasicRealisation(entityManager);
+        this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager);
+        this.proxyEntityFactory = new ProxyEntityFactoryBasicRealisation(connectionManager.getConnection(),
+                                                                         proxyEntityQueryBuilder,
+                                                                         instanceBuilder);
+        initializationDataBase();
+    }
+
+    //todo
+    private void initializationDataBase(){
+
+    }
+
+    @Override
+    public SessionFactory createSessionFactory() {
+        return new SessionFactoryBasicRealisation(connectionManager,
+                initializationManager.getConfiguration().isolationLevel(),
+                proxyEntityFactory,
+                resultSetToMapMapper,
+                sessionQueryBuilder);
+    }
+}

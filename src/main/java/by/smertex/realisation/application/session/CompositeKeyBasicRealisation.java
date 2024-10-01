@@ -43,5 +43,4 @@ public class CompositeKeyBasicRealisation implements CompositeKey {
             throw new AnnotationColumnNotFound(e);
         }
     }
-
 }

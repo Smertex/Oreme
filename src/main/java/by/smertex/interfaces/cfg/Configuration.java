@@ -1,4 +1,4 @@
-package by.smertex.interfaces.application;
+package by.smertex.interfaces.cfg;
 
 import by.smertex.interfaces.application.session.SessionFactory;
 

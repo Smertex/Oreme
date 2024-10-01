@@ -1,4 +1,4 @@
-package by.smertex.interfaces.cfg;
+package by.smertex.interfaces.application.session;
 
 public interface ProxyEntityFactory {
 

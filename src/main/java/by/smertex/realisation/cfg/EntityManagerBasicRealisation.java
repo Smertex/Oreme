@@ -4,8 +4,6 @@ import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
-import by.smertex.realisation.loaders.XmlElementLoaderBasicRealisation;
-import by.smertex.realisation.mappers.XmlElementToSetEntityClassesMapper;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Field;
@@ -13,13 +11,11 @@ import java.util.*;
 
 public class EntityManagerBasicRealisation implements EntityManager {
 
-    private static final EntityManagerBasicRealisation INSTANCE = new EntityManagerBasicRealisation();
+    private final XmlElementLoader xmlElementLoader;
 
-    private final XmlElementLoader xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
+    private final Mapper<Set<String>, Node> mapper;
 
-    private final Mapper<Set<String>, Node> mapper = XmlElementToSetEntityClassesMapper.getInstance();
-
-    private final Map<Class<?>, List<Field>> entities = new HashMap<>();
+    private final Map<Class<?>, List<Field>> entities;
 
     private void init(){
         initSetEntities();
@@ -45,11 +41,11 @@ public class EntityManagerBasicRealisation implements EntityManager {
                 .toList();
     }
 
-    public static EntityManagerBasicRealisation getInstance() {
-        return INSTANCE;
-    }
-
-    private EntityManagerBasicRealisation(){
+    protected EntityManagerBasicRealisation(XmlElementLoader xmlElementLoader,
+                                         Mapper<Set<String>, Node> mapper){
+        this.xmlElementLoader = xmlElementLoader;
+        this.mapper = mapper;
+        entities = new HashMap<>();
         init();
     }
 }
