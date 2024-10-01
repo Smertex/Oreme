@@ -5,7 +5,6 @@ import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.SessionException;
 import by.smertex.interfaces.application.builders.SessionQueryBuilder;
 import by.smertex.interfaces.application.session.*;
-import by.smertex.interfaces.cfg.ProxyEntity;
 import by.smertex.interfaces.cfg.ProxyEntityFactory;
 import by.smertex.realisation.elements.IsolationLevel;
 

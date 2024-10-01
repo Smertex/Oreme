@@ -1,7 +1,5 @@
 package by.smertex.interfaces.application.builders;
 
-import by.smertex.interfaces.application.session.CompositeKey;
-
 public interface SessionQueryBuilder extends QueryBuilder {
 
     String UPDATE_SQL = "UPDATE %s SET %s ";

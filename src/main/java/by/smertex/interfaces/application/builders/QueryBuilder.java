@@ -1,7 +1,5 @@
 package by.smertex.interfaces.application.builders;
 
-import by.smertex.interfaces.application.session.CompositeKey;
-
 public interface QueryBuilder {
     String SELECT_SQL = "SELECT %s \n";
 
