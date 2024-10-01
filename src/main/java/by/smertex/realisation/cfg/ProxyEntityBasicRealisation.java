@@ -36,6 +36,7 @@ public class ProxyEntityBasicRealisation implements ProxyEntity {
     @Override
     public Object getEntity() {
         if(entity == null) createEntity();
+        close();
         return entity;
     }
 
