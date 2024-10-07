@@ -11,7 +11,6 @@ import by.smertex.interfaces.cfg.EntityManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
