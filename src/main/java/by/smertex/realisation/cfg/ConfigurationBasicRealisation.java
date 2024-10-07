@@ -21,13 +21,12 @@ public class ConfigurationBasicRealisation implements Configuration{
     private final ConnectionManager connectionManager;
     private final InitializationManager initializationManager;
     private final EntityManager entityManager;
-    private final ProxyEntityFactory proxyEntityFactory;
     private final Mapper<Map<String, Object>, ResultSet> resultSetToMapMapper;
     private final Mapper<ConnectionManagerConfiguration, Node> xmlElementToConnectionManagerConfigurationMapper;
     private final Mapper<InitializationConfiguration, Node> xmlElementToInitializationConfigurationMapper;
     private final Mapper<Set<String>, Node> xmlElementToSetEntityClassesMapper;
-    private final SessionQueryBuilder sessionQueryBuilder;
-    private final ProxyEntityQueryBuilder proxyEntityQueryBuilder;
+    private final ProxyEntityBuilder proxyEntityBuilder;
+    private final QueryBuilder queryBuilder;
     private final InstanceBuilder instanceBuilder;
 
     public ConfigurationBasicRealisation(){
@@ -42,12 +41,9 @@ public class ConfigurationBasicRealisation implements Configuration{
         this.initializationManager = new InitializationManagerBasicRealisation(xmlElementLoader, xmlElementToInitializationConfigurationMapper);
         this.entityManager = new EntityManagerBasicRealisation(xmlElementLoader, xmlElementToSetEntityClassesMapper);
 
-        this.sessionQueryBuilder = new SessionQueryBuilderBasicRealisation(entityManager);
-        this.proxyEntityQueryBuilder = new ProxyEntityQueryBuilderBasicRealisation(entityManager);
+        this.proxyEntityBuilder = new ProxyEntityBuilderBasicRealisation();
+        this.queryBuilder = new LazyQueryBuilderBasicRealisation(entityManager);
         this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager);
-        this.proxyEntityFactory = new ProxyEntityFactoryBasicRealisation(connectionManager.getConnection(),
-                                                                         proxyEntityQueryBuilder,
-                                                                         instanceBuilder);
         initializationDataBase();
     }
 
@@ -60,8 +56,9 @@ public class ConfigurationBasicRealisation implements Configuration{
     public SessionFactory createSessionFactory() {
         return new SessionFactoryBasicRealisation(connectionManager,
                 initializationManager.getConfiguration().isolationLevel(),
-                proxyEntityFactory,
                 resultSetToMapMapper,
-                sessionQueryBuilder);
+                instanceBuilder,
+                queryBuilder,
+                proxyEntityBuilder);
     }
 }

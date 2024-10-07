@@ -2,9 +2,9 @@ package by.smertex.realisation.application.builders;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
-import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.QueryBuilderException;
-import by.smertex.interfaces.application.builders.ProxyEntityQueryBuilder;
+import by.smertex.interfaces.application.builders.EntityCollector;
+import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.CompositeKey;
 import by.smertex.interfaces.cfg.EntityManager;
 
@@ -14,22 +14,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class ProxyEntityQueryBuilderBasicRealisation extends AbstractQueryBuilderBasicRealisation implements ProxyEntityQueryBuilder {
+public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
 
-    private final EntityManager entityManager;
+    protected static final String JOIN_SQL = "JOIN %s ON %s \n";
 
     @Override
-    public String selectWhereSql(Class<?> entity, Long id) {
+    public String selectSql(Class<?> entity) {
+        return SELECT_SQL.formatted(entityToSelect(entity)) + fromFieldSql(entity) + joinsGenerate(entity);
+    }
+
+    @Override
+    public String selectSql(Class<?> entity, Object id) {
         return selectSql(entity) + WHERE_SQL.formatted(generatedWhereSql(entity, id));
     }
 
     @Override
-    public String selectWhereSql(Class<?> entity, CompositeKey compositeKey) {
+    public String selectSql(Class<?> entity, CompositeKey compositeKey) {
         return selectSql(entity) + WHERE_SQL.formatted(generateWhereSqlWithCompositeKey(entity, compositeKey));
-    }
-
-    private String selectSql(Class<?> entity) {
-        return SELECT_SQL.formatted(entityToSelect(entity)) + fromFieldSql(entity) + joinsGenerate(entity);
     }
 
     private String entityToSelect(Class<?> entity){
@@ -83,43 +84,7 @@ public class ProxyEntityQueryBuilderBasicRealisation extends AbstractQueryBuilde
         throw new QueryBuilderException(new RuntimeException());
     }
 
-    private String generatedWhereSql(Class<?> entity, Long id) {
-        Field[] field = fieldIdCollector(entity);
-        if(field.length != 1) throw new QueryBuilderException(new RuntimeException());
-        return equalityGenerate(concatPoint(entity.getAnnotation(Table.class).name(), field[0].getName()),
-                id.toString());
-    }
-
-    private String generateWhereSqlWithCompositeKey(Class<?> entity, CompositeKey compositeKey){
-        return Arrays.stream(fieldIdCollector(entity))
-                .filter(column -> compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()) != null)
-                .map(column -> equalityGenerate(
-                        concatPoint(entity.getDeclaredAnnotation(Table.class).name(),
-                                column.getAnnotation(Column.class).name()),
-                        compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()).toString())
-                )
-                .collect(Collectors.joining(AND_SQL));
-    }
-
-    private String equalityGenerate(String el1, String el2){
-        return el1 + " = " + el2;
-    }
-
-    private String concatPoint(String el1, String el2){
-        return el1 + "." + el2;
-    }
-
-    private Field[] fieldIdCollector(Class<?> entity){
-        return entityManager.getClassFields(entity).stream()
-                .filter(this::isFieldId)
-                .toArray(Field[]::new);
-    }
-
-    private Boolean isFieldId(Field field){
-        return field.getAnnotation(Id.class) != null;
-    }
-
-    public ProxyEntityQueryBuilderBasicRealisation(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    protected EagerSelectQueryBasicRealisation(EntityManager entityManager) {
+        super(entityManager);
     }
 }

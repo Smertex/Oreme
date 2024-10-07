@@ -1,27 +1,26 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.annotation.entity.fields.columns.Column;
-import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.SessionException;
-import by.smertex.interfaces.application.builders.SessionQueryBuilder;
+import by.smertex.interfaces.application.builders.InstanceBuilder;
+import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
-import by.smertex.interfaces.application.session.ProxyEntityFactory;
 import by.smertex.interfaces.mapper.Mapper;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SessionBasicRealisation implements Session {
-
-    private final ProxyEntityFactory proxyEntityFactory;
-
-    private final SessionQueryBuilder sessionQueryBuilder;
 
     private final Mapper<Map<String, Object>, ResultSet> mapper;
 
     private final Connection connection;
+
+    private final InstanceBuilder instanceBuilder;
+
+    private final QueryBuilder queryBuilder;
+
+    private final ProxyEntityBuilder proxyEntityBuilder;
 
     private Transaction transaction;
 
@@ -47,30 +46,27 @@ public class SessionBasicRealisation implements Session {
 
     @Override
     public Optional<Object> find(Class<?> entity, Long id) {
-        return Optional.of(proxyEntityFactory.buildProxyEntity(entity, id));
+        return Optional.empty();
     }
 
     @Override
     public Optional<Object> find(Class<?> entity, CompositeKey compositeKey) {
-        return Optional.of(proxyEntityFactory.buildProxyEntity(entity, compositeKey));
+        String sql = queryBuilder.selectSql(entity, compositeKey);
+
+        try(PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()){
+            Object instanceEntity = null;
+            if(resultSet.next()) instanceEntity = instanceBuilder.buildInstance(entity, resultSet);
+            if(instanceEntity != null) transaction.addEntityInTransaction(instanceEntity);
+            return Optional.ofNullable(instanceEntity);
+        } catch (SQLException e) {
+            throw new SessionException(e);
+        }
     }
 
     @Override
     public List<Object> findAll(Class<?> entity) {
-        String sql = sessionQueryBuilder.selectSql(entity);
-        List<Object> entities = new ArrayList<>();
-
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery()){
-
-            while(resultSet.next()) entities.add(proxyEntityFactory
-                    .buildProxyEntity(entity, queryResultToCompositeKey(entity, resultSet)));
-
-        } catch (SQLException e) {
-            throw new SessionException(e);
-        }
-
-        return entities;
+        return null;
     }
 
     @Override
@@ -98,26 +94,13 @@ public class SessionBasicRealisation implements Session {
         }
     }
 
-    private CompositeKey queryResultToCompositeKey(Class<?> entity, ResultSet resultSet){
-        CompositeKey compositeKey = new CompositeKeyBasicRealisation(entity);
-        Map<String, Object> column = mapper.mapFrom(resultSet);
-
-        idCollector(entity).forEach(columnName -> compositeKey.setValue(columnName, column.get(columnName)));
-        return compositeKey;
-    }
-
-    private List<String> idCollector(Class<?> entity){
-       return Arrays.stream(entity.getDeclaredFields())
-                .filter(column -> column.getDeclaredAnnotation(Id.class) != null)
-                .map(column -> column.getDeclaredAnnotation(Column.class).name())
-                .collect(Collectors.toList());
-    }
 
     protected SessionBasicRealisation(Connection connection,
                                       IsolationLevel level,
-                                      ProxyEntityFactory proxyEntityFactory,
-                                      SessionQueryBuilder sessionQueryBuilder,
-                                      Mapper<Map<String, Object>, ResultSet> mapper){
+                                      Mapper<Map<String, Object>, ResultSet> mapper,
+                                      InstanceBuilder instanceBuilder,
+                                      QueryBuilder queryBuilder,
+                                      ProxyEntityBuilder proxyEntityBuilder){
         this.connection = connection;
         try {
             connection.setAutoCommit(false);
@@ -125,8 +108,9 @@ public class SessionBasicRealisation implements Session {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
-        this.proxyEntityFactory = proxyEntityFactory;
-        this.sessionQueryBuilder = sessionQueryBuilder;
         this.mapper = mapper;
+        this.instanceBuilder = instanceBuilder;
+        this.queryBuilder = queryBuilder;
+        this.proxyEntityBuilder = proxyEntityBuilder;
     }
 }
