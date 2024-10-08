@@ -37,7 +37,7 @@ public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBu
     }
 
     private String recursiveQuery(Field field){
-        return !isFieldIsJoin(field) ?
+        return !isFieldIsJoin(entityManager.getRelationshipAnnotation(field)) ?
                 columnNameGenerate(field) : columnNameGenerate(field) + ", " + entityToSelect(field.getType());
     }
 
@@ -49,7 +49,7 @@ public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBu
 
     private String joinsGenerate(Class<?> entity){
         return entityManager.getClassFields(entity).stream()
-                .filter(this::isFieldIsJoin)
+                .filter(field -> isFieldIsJoin(entityManager.getRelationshipAnnotation(field)))
                 .map(field -> createJoin(entity, field))
                 .collect(Collectors.joining("\n"));
     }

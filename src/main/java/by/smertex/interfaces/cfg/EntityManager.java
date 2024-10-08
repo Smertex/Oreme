@@ -6,6 +6,7 @@ import by.smertex.annotation.entity.classes.Table;
 import by.smertex.exceptions.cfg.ClassNotEntity;
 import by.smertex.exceptions.cfg.ClassNotFound;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -14,6 +15,9 @@ public interface EntityManager {
     String XML_ENTITIES_TAG = "entities";
 
     List<Field> getClassFields(Class<?> key);
+
+    Annotation getRelationshipAnnotation(Field key);
+
 
     default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)

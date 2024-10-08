@@ -9,6 +9,7 @@ import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -20,7 +21,7 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
     private final ProxyEntityBuilder proxyEntityBuilder;
 
     @Override
-    public Object buildInstance(Class<?> clazz, ResultSet fieldValues) {
+    public Object buildInstance(Class<?> clazz, ResultSet fieldValues, Object proxyClass, Method method) {
         return substitutionValues(clazz, fieldValues);
     }
 
@@ -55,7 +56,7 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
 
     private Object getRelationshipEntity(Class<?> entity, ResultSet fieldValues, Field field){
         try {
-            return !fieldHaveAnnotationRelationship(field) ?
+            return !isFieldIsJoin(entityManager.getRelationshipAnnotation(field)) ?
                     fieldValues.getObject(rowGenerate(entity, field)) : substitutionValues(field.getType(), fieldValues);
         } catch (SQLException e) {
             throw new InstanceBuilderException(e);

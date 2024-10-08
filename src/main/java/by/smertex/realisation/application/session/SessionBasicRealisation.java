@@ -54,11 +54,11 @@ public class SessionBasicRealisation implements Session {
             ResultSet resultSet = statement.executeQuery()){
             Object instanceEntity = null;
             if(resultSet.next()) {
-                instanceEntity = instanceBuilder.buildInstance(entity, resultSet);
+                instanceEntity = instanceBuilder.buildInstance(entity, resultSet, this, SessionBasicRealisation.class.getDeclaredMethod("find", Class.class, CompositeKey.class));
                 cache.addEntityInCache(instanceEntity);
             }
             return Optional.ofNullable(instanceEntity);
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchMethodException e) {
             throw new SessionException(e);
         }
     }

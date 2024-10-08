@@ -1,11 +1,17 @@
 package by.smertex.realisation.cfg;
 
 import by.smertex.annotation.entity.fields.columns.Column;
+import by.smertex.annotation.entity.fields.communications.ManyToMany;
+import by.smertex.annotation.entity.fields.communications.ManyToOne;
+import by.smertex.annotation.entity.fields.communications.OneToMany;
+import by.smertex.annotation.entity.fields.communications.OneToOne;
+import by.smertex.exceptions.cfg.EntityManagerException;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
 import by.smertex.interfaces.mapper.Mapper;
 import org.w3c.dom.Node;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -17,6 +23,8 @@ public class EntityManagerBasicRealisation implements EntityManager {
 
     private final Map<Class<?>, List<Field>> entities;
 
+    private final Map<Field, Annotation> relationshipField;
+
     private void init(){
         initSetEntities();
     }
@@ -26,13 +34,34 @@ public class EntityManagerBasicRealisation implements EntityManager {
         for(String stringClass: classes){
             Class<?> clazz = stringToClass(stringClass);
             validationEntity(clazz);
+            iterationByFields(clazz);
             entities.put(clazz, createListFields(clazz));
         }
+    }
+
+    private void iterationByFields(Class<?> clazz){
+        Arrays.stream(clazz.getDeclaredFields()).forEach(this::addRelationship);
+    }
+
+    private void addRelationship(Field field){
+        Annotation[] annotations = Arrays.stream(field.getDeclaredAnnotations())
+                .filter(el -> el.annotationType() == ManyToOne.class
+                        || el.annotationType() == OneToOne.class
+                        || el.annotationType() == ManyToMany.class
+                        || el.annotationType() == OneToMany.class )
+                .toArray(Annotation[]::new);
+        if(annotations.length > 1) throw new EntityManagerException(new RuntimeException());
+        if(annotations.length == 1) relationshipField.put(field, annotations[0]);
     }
 
     @Override
     public List<Field> getClassFields(Class<?> key) {
         return entities.get(key);
+    }
+
+    @Override
+    public Annotation getRelationshipAnnotation(Field key) {
+        return relationshipField.get(key);
     }
 
     private List<Field> createListFields(Class<?> clazz){
@@ -46,6 +75,7 @@ public class EntityManagerBasicRealisation implements EntityManager {
         this.xmlElementLoader = xmlElementLoader;
         this.mapper = mapper;
         entities = new HashMap<>();
+        relationshipField = new HashMap<>();
         init();
     }
 }
