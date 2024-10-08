@@ -1,10 +1,7 @@
 package by.smertex.realisation.cfg;
 
 import by.smertex.annotation.entity.fields.columns.Column;
-import by.smertex.annotation.entity.fields.communications.ManyToMany;
-import by.smertex.annotation.entity.fields.communications.ManyToOne;
-import by.smertex.annotation.entity.fields.communications.OneToMany;
-import by.smertex.annotation.entity.fields.communications.OneToOne;
+import by.smertex.annotation.entity.fields.communications.*;
 import by.smertex.exceptions.cfg.EntityManagerException;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.loaders.XmlElementLoader;
@@ -62,6 +59,16 @@ public class EntityManagerBasicRealisation implements EntityManager {
     @Override
     public Annotation getRelationshipAnnotation(Field key) {
         return relationshipField.get(key);
+    }
+
+    @Override
+    public Boolean isLazyRelationship(Field key) {
+        Annotation annotation = relationshipField.get(key);
+        if (annotation instanceof ManyToOne)
+            return ((ManyToOne) annotation).strategy().equals(QueryStrategy.EAGER);
+        if (annotation instanceof OneToOne)
+            return ((OneToOne) annotation).strategy().equals(QueryStrategy.EAGER);
+        return false;
     }
 
     private List<Field> createListFields(Class<?> clazz){

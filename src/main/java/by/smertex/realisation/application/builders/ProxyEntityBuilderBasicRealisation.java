@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 public class ProxyEntityBuilderBasicRealisation implements ProxyEntityBuilder {
     private final ProxyFactory proxyFactory = new ProxyFactory();
 
+
+
     public Object createProxy(Class<?> clazz, Method method, Object methodInstance, Object... args) throws InstantiationException, IllegalAccessException {
         MethodHandler handler = createHandler(method, args);
         return createProxyInstance(clazz, handler);

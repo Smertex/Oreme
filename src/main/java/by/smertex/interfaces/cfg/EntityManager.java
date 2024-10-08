@@ -18,6 +18,7 @@ public interface EntityManager {
 
     Annotation getRelationshipAnnotation(Field key);
 
+    Boolean isLazyRelationship(Field key);
 
     default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
