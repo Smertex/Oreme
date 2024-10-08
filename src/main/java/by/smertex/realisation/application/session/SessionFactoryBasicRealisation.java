@@ -2,15 +2,11 @@ package by.smertex.realisation.application.session;
 
 import by.smertex.interfaces.application.builders.InstanceBuilder;
 import by.smertex.interfaces.application.builders.QueryBuilder;
-import by.smertex.interfaces.application.session.ProxyEntityBuilder;
+import by.smertex.interfaces.application.session.CacheFactory;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.application.session.Session;
 import by.smertex.interfaces.application.session.SessionFactory;
-import by.smertex.interfaces.mapper.Mapper;
 import by.smertex.realisation.elements.IsolationLevel;
-
-import java.sql.ResultSet;
-import java.util.Map;
 
 public class SessionFactoryBasicRealisation implements SessionFactory {
 
@@ -18,36 +14,32 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final IsolationLevel basicIsolationLevel;
 
-    private final Mapper<Map<String, Object>, ResultSet> mapper;
-
     private final InstanceBuilder instanceBuilder;
 
     private final QueryBuilder queryBuilder;
 
-    private final ProxyEntityBuilder proxyEntityBuilder;
+    private final CacheFactory cacheFactory;
+
 
     @Override
     public Session openSession() {
         return new SessionBasicRealisation(
                 connectionManager.getConnection(),
                 basicIsolationLevel,
-                mapper,
+                cacheFactory.createCache(),
                 instanceBuilder,
-                queryBuilder,
-                proxyEntityBuilder);
+                queryBuilder);
     }
 
     public SessionFactoryBasicRealisation(ConnectionManager connectionManager,
                                           IsolationLevel basicIsolationLevel,
-                                          Mapper<Map<String, Object>, ResultSet> mapper,
+                                          CacheFactory cacheFactory,
                                           InstanceBuilder instanceBuilder,
-                                          QueryBuilder queryBuilder,
-                                          ProxyEntityBuilder proxyEntityBuilder) {
+                                          QueryBuilder queryBuilder) {
         this.connectionManager = connectionManager;
         this.basicIsolationLevel = basicIsolationLevel;
-        this.mapper = mapper;
         this.instanceBuilder = instanceBuilder;
         this.queryBuilder = queryBuilder;
-        this.proxyEntityBuilder = proxyEntityBuilder;
+        this.cacheFactory = cacheFactory;
     }
 }

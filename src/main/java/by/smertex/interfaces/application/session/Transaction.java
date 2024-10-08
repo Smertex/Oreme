@@ -1,6 +1,5 @@
 package by.smertex.interfaces.application.session;
 
-import java.util.List;
 
 public interface Transaction {
     void begin();
@@ -8,10 +7,4 @@ public interface Transaction {
     void rollback();
 
     void commit();
-
-    List<Object> getAllEntitiesInThisTransaction();
-
-    List<Object> getAllEntitiesByType(Class<?> clazz);
-
-    void addEntityInTransaction(Object entity);
 }

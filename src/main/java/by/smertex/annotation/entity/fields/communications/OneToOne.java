@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OneToOne {
     String mappedBy();
+
+    QueryStrategy strategy() default QueryStrategy.EAGER;
 }

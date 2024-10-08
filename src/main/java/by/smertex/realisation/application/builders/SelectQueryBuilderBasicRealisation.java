@@ -13,9 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
-public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
-
-    protected static final String JOIN_SQL = "JOIN %s ON %s \n";
+public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
 
     @Override
     public String selectSql(Class<?> entity) {
@@ -39,7 +37,7 @@ public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuil
     }
 
     private String recursiveQuery(Field field){
-        return !fieldHaveAnnotationRelationship(field) ?
+        return !isFieldIsJoin(field) ?
                 columnNameGenerate(field) : columnNameGenerate(field) + ", " + entityToSelect(field.getType());
     }
 
@@ -51,7 +49,7 @@ public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuil
 
     private String joinsGenerate(Class<?> entity){
         return entityManager.getClassFields(entity).stream()
-                .filter(this::fieldHaveAnnotationRelationship)
+                .filter(this::isFieldIsJoin)
                 .map(field -> createJoin(entity, field))
                 .collect(Collectors.joining("\n"));
     }
@@ -83,7 +81,7 @@ public abstract class EagerSelectQueryBasicRealisation extends AbstractQueryBuil
         throw new QueryBuilderException(new RuntimeException());
     }
 
-    protected EagerSelectQueryBasicRealisation(EntityManager entityManager) {
+    protected SelectQueryBuilderBasicRealisation(EntityManager entityManager) {
         super(entityManager);
     }
 }

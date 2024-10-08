@@ -11,4 +11,6 @@ public @interface OneToMany {
     String mappedBy();
 
     Class<?> tableClass();
+
+    QueryStrategy strategy() default QueryStrategy.EAGER;
 }

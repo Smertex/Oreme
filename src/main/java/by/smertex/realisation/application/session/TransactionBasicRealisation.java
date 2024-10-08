@@ -6,17 +6,12 @@ import by.smertex.interfaces.application.session.Transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TransactionBasicRealisation implements Transaction {
 
     private final Session session;
 
     private final Connection connection;
-
-    private final List<Object> entities;
 
     @Override
     public void begin() {
@@ -39,23 +34,6 @@ public class TransactionBasicRealisation implements Transaction {
         }
     }
 
-    @Override
-    public List<Object> getAllEntitiesInThisTransaction() {
-        return null;
-    }
-
-    @Override
-    public List<Object> getAllEntitiesByType(Class<?> clazz) {
-        return entities.stream()
-                .filter(entities -> clazz.isAssignableFrom(entities.getClass()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void addEntityInTransaction(Object entity) {
-        entities.add(entity);
-    }
-
     private void deleteThisInstance(){
         try {
             java.lang.reflect.Field field = session.getClass().getDeclaredField("transaction");
@@ -69,6 +47,5 @@ public class TransactionBasicRealisation implements Transaction {
     protected TransactionBasicRealisation(Connection connection, Session session){
         this.connection = connection;
         this.session = session;
-        this.entities = new ArrayList<>();
     }
 }

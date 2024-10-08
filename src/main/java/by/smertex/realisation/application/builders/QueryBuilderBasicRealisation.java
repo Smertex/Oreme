@@ -3,7 +3,7 @@ package by.smertex.realisation.application.builders;
 import by.smertex.interfaces.cfg.EntityManager;
 
 
-public class EagerQueryBuilderBasicRealisation extends EagerSelectQueryBasicRealisation {
+public class QueryBuilderBasicRealisation extends SelectQueryBuilderBasicRealisation {
 
     @Override
     public String updateSql(Class<?> entity) {
@@ -20,7 +20,7 @@ public class EagerQueryBuilderBasicRealisation extends EagerSelectQueryBasicReal
         return null;
     }
 
-    public EagerQueryBuilderBasicRealisation(EntityManager entityManager) {
+    public QueryBuilderBasicRealisation(EntityManager entityManager) {
         super(entityManager);
     }
 }

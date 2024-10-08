@@ -4,6 +4,7 @@ import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.InstanceBuilderException;
 import by.smertex.interfaces.application.builders.InstanceBuilder;
+import by.smertex.interfaces.application.session.ProxyEntityBuilder;
 import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.reflect.Field;
@@ -15,6 +16,8 @@ import java.util.List;
 public class InstanceBuilderBasicRealisation implements InstanceBuilder {
 
     private final EntityManager entityManager;
+
+    private final ProxyEntityBuilder proxyEntityBuilder;
 
     @Override
     public Object buildInstance(Class<?> clazz, ResultSet fieldValues) {
@@ -63,7 +66,8 @@ public class InstanceBuilderBasicRealisation implements InstanceBuilder {
         return entity.getAnnotation(Table.class).name() + COLUMN_NAME_SEPARATOR + field.getAnnotation(Column.class).name();
     }
 
-    public InstanceBuilderBasicRealisation(EntityManager entityManager) {
+    public InstanceBuilderBasicRealisation(EntityManager entityManager, ProxyEntityBuilder proxyEntityBuilder) {
         this.entityManager = entityManager;
+        this.proxyEntityBuilder = proxyEntityBuilder;
     }
 }
