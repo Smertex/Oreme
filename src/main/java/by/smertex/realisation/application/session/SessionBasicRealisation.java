@@ -6,6 +6,7 @@ import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
 import by.smertex.realisation.elements.IsolationLevel;
 
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.*;
 
@@ -47,18 +48,22 @@ public class SessionBasicRealisation implements Session {
     }
 
     @Override
-    public Optional<Object> find(Class<?> entity, CompositeKey compositeKey) {
+    public Optional<Object> find(Class<?> entity, CompositeKey compositeKey) throws SessionException {
         String sql = queryBuilder.selectSql(entity, compositeKey);
 
         try(PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery()){
+            Method method = getClass().getMethod("find", Class.class, CompositeKey.class);
+
             Object instanceEntity = null;
             if(resultSet.next()) {
-                instanceEntity = instanceBuilder.buildInstance(entity, resultSet);
+                //instanceEntity = instanceBuilder.buildInstance(entity, resultSet);
+                instanceEntity = instanceBuilder.buildInstance(resultSet, entity, method, this);
+
                 cache.addEntityInCache(instanceEntity);
             }
             return Optional.ofNullable(instanceEntity);
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchMethodException e) {
             throw new SessionException(e);
         }
     }

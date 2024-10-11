@@ -30,14 +30,15 @@ public class EntityManagerBasicRealisation implements EntityManager {
         Set<String> classes = mapper.mapFrom(xmlElementLoader.getNodeByTag(EntityManager.XML_ENTITIES_TAG));
         for(String stringClass: classes){
             Class<?> clazz = stringToClass(stringClass);
+            List<Field> fields = List.of(clazz.getDeclaredFields());
             validationEntity(clazz);
-            iterationByFields(clazz);
-            entities.put(clazz, createListFields(clazz));
+            iterationByFields(fields);
+            entities.put(clazz, createListFields(fields));
         }
     }
 
-    private void iterationByFields(Class<?> clazz){
-        Arrays.stream(clazz.getDeclaredFields()).forEach(this::addRelationship);
+    private void iterationByFields(List<Field> fields){
+        fields.forEach(this::addRelationship);
     }
 
     private void addRelationship(Field field){
@@ -65,14 +66,20 @@ public class EntityManagerBasicRealisation implements EntityManager {
     public Boolean isLazyRelationship(Field key) {
         Annotation annotation = relationshipField.get(key);
         if (annotation instanceof ManyToOne)
-            return ((ManyToOne) annotation).strategy().equals(QueryStrategy.EAGER);
+            return ((ManyToOne) annotation).strategy().equals(QueryStrategy.LAZY);
         if (annotation instanceof OneToOne)
-            return ((OneToOne) annotation).strategy().equals(QueryStrategy.EAGER);
+            return ((OneToOne) annotation).strategy().equals(QueryStrategy.LAZY);
         return false;
     }
 
-    private List<Field> createListFields(Class<?> clazz){
-        return Arrays.stream(clazz.getDeclaredFields())
+    @Override
+    public Boolean isRelationship(Field key) {
+        return relationshipField.get(key) != null;
+    }
+
+
+    private List<Field> createListFields(List<Field> fields){
+        return fields.stream()
                 .filter(field -> field.getDeclaredAnnotation(Column.class) != null)
                 .toList();
     }

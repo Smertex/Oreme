@@ -13,11 +13,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
-public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
+public abstract class SelectQueryBuilderBasicRealisation
+        extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
 
     @Override
     public String selectSql(Class<?> entity) {
-        return SELECT_SQL.formatted(entityToSelect(entity)) + fromFieldSql(entity) + joinsGenerate(entity);
+        return SELECT_SQL.formatted(selectGenerate(entity)) + fromFieldSql(entity) + joinsGenerate(entity);
     }
 
     @Override
@@ -30,15 +31,20 @@ public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBu
         return selectSql(entity) + WHERE_SQL.formatted(generateWhereSqlWithCompositeKey(entity, compositeKey));
     }
 
-    private String entityToSelect(Class<?> entity){
+    private String selectGenerate(Class<?> entity){
         return entityManager.getClassFields(entity).stream()
-                .map(this::recursiveQuery)
+                .map(this::appendFieldToSelect)
                 .collect(Collectors.joining(",\n\t"));
     }
 
-    private String recursiveQuery(Field field){
-        return !entityManager.isLazyRelationship(field) ?
-                columnNameGenerate(field) : columnNameGenerate(field) + ", " + entityToSelect(field.getType());
+    private String appendFieldToSelect(Field field){
+        return entityManager.isRelationship(field) ?
+                relationshipQueryGenerate(field) : columnNameGenerate(field);
+    }
+
+    private String relationshipQueryGenerate(Field field){
+        return entityManager.isLazyRelationship(field) ?
+                columnNameGenerate(field) : columnNameGenerate(field) + ", \n\t" + selectGenerate(field.getType());
     }
 
     private String columnNameGenerate(Field field){
@@ -49,7 +55,8 @@ public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBu
 
     private String joinsGenerate(Class<?> entity){
         return entityManager.getClassFields(entity).stream()
-                .filter(entityManager::isLazyRelationship)
+                .filter(entityManager::isRelationship)
+                .filter(field -> !entityManager.isLazyRelationship(field))
                 .map(field -> createJoin(entity, field))
                 .collect(Collectors.joining("\n"));
     }
@@ -57,9 +64,9 @@ public abstract class SelectQueryBuilderBasicRealisation extends AbstractQueryBu
     private String createJoin(Class<?> entity, Field field){
         return JOIN_SQL.formatted(tableNameCreate(field.getType().getAnnotation(Table.class)),
                 equalityGenerate(concatPoint(field.getType().getAnnotation(Table.class).name(),
-                                annotationToMappedByString(field)),
-                        concatPoint(entity.getAnnotation(Table.class).name(),
-                                field.getAnnotation(Column.class).name())));
+                                             annotationToMappedByString(field)),
+                                 concatPoint(entity.getAnnotation(Table.class).name(),
+                                             field.getAnnotation(Column.class).name())));
     }
 
     private String tableNameCreate(Object tableAnnotation){
