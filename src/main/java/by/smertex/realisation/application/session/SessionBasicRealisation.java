@@ -33,6 +33,7 @@ public class SessionBasicRealisation implements Session {
         return transaction;
     }
 
+    @SuppressWarnings("all")
     @Override
     public void setIsolationLevel(IsolationLevel level) {
         try {
