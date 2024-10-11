@@ -19,3 +19,19 @@
         <mapping class=""/>
     </entities>
 </oreme-configuration>
+
+```
+## Для работы необходима зависимость javassist версии 3.29.0-GA
+Maven
+```xml
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.29.0-GA</version>
+    </dependency>
+```
+Gradle
+```xml
+dependencies {
+    implementation 'org.javassist:javassist:3.29.0-GA'
+}
