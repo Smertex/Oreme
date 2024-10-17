@@ -2,7 +2,6 @@ package by.smertex.realisation.mappers;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
-import by.smertex.exceptions.application.SessionException;
 import by.smertex.exceptions.mapper.ResultSetToObjectMapperException;
 import by.smertex.interfaces.application.builders.EntityCollector;
 import by.smertex.interfaces.cfg.EntityManager;

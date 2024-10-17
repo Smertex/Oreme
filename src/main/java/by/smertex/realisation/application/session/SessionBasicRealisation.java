@@ -1,9 +1,6 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.annotation.entity.classes.Table;
-import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.SessionException;
-import by.smertex.interfaces.application.builders.EntityCollector;
 import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.EntityManager;
@@ -11,7 +8,6 @@ import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.elements.IsolationLevel;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 
