@@ -6,10 +6,12 @@ public interface Cache {
 
     void clear();
 
-    void addEntityInCache(Object entity);
+    void addEntityInCache(Class<?> clazz, Object entity, CompositeKey compositeKey);
 
     List<Object> getEntityInCache();
 
     List<Object> getEntityInCacheByType(Class<?> clazz);
+
+    Object getEntity(Class<?> clazz, CompositeKey compositeKey);
 
 }

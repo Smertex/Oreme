@@ -9,6 +9,7 @@ import by.smertex.interfaces.application.session.CompositeKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class CompositeKeyBasicRealisation implements CompositeKey {
     private final Map<String, Object> keys = new HashMap<>();
@@ -42,5 +43,18 @@ public class CompositeKeyBasicRealisation implements CompositeKey {
         } catch (RuntimeException e){
             throw new AnnotationColumnNotFound(e);
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        CompositeKeyBasicRealisation that = (CompositeKeyBasicRealisation) object;
+        return Objects.equals(keys, that.keys);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(keys);
     }
 }

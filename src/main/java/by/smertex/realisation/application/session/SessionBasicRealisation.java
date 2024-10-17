@@ -7,7 +7,6 @@ import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.elements.IsolationLevel;
 
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 
@@ -46,17 +45,22 @@ public class SessionBasicRealisation implements Session {
     }
 
     public Object find(Class<?> entity, CompositeKey compositeKey) throws SessionException {
-        Object instance = findEntityInCache(entity, compositeKey);
+        Object instance = cache.getEntity(entity, compositeKey);
         if(instance != null) return instance;
 
         String sql = queryBuilder.selectSql(entity, compositeKey);
         System.out.println(sql);
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery()){
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-            if(resultSet.next()) instance = resultSetToObjectMapper.map(entity, resultSet);
-            cache.addEntityInCache(instance);
-            if(instance != null) objectToProxy(instance);
+            if(resultSet.next()) {
+                instance = resultSetToObjectMapper.map(entity, resultSet);
+                cache.addEntityInCache(entity, instance, compositeKey);
+            }
+
+            if(instance != null)
+                objectToProxy(instance);
+
             return instance;
         } catch (SQLException e) {
             throw new SessionException(e);
@@ -77,26 +81,6 @@ public class SessionBasicRealisation implements Session {
 
     public boolean delete(Object entity) {
         return false;
-    }
-
-    private Object findEntityInCache(Class<?> entity, CompositeKey compositeKey) {
-        List<Field> idFields = entityManager.isIdField(entity);
-        Map<String, Object> compositeKeyMap = compositeKey.getKeys();
-        boolean flag = false;
-
-            for (Object instance : cache.getEntityInCacheByType(entity)) {
-                for (Field field : idFields) {
-                    try {
-                        flag = field.get(instance).equals(compositeKeyMap.get(field.getName()));
-                    } catch (IllegalAccessException e) {
-                        throw new SessionException(e);
-                    }
-                    if (!flag) break;
-                }
-                if (flag) return instance;
-            }
-
-        return null;
     }
 
     private void objectToProxy(Object object){
