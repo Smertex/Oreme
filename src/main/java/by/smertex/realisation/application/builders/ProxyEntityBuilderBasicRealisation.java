@@ -1,5 +1,6 @@
 package by.smertex.realisation.application.builders;
 
+import by.smertex.exceptions.application.ProxyInstanceException;
 import by.smertex.interfaces.application.session.ProxyEntityBuilder;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
@@ -23,12 +24,16 @@ public class ProxyEntityBuilderBasicRealisation implements ProxyEntityBuilder {
         return instance;
     }
 
-    private MethodHandler createHandler(Method methodByCreate, Object objectInWhichMethod, Object... argsMethodByCreate){
+    protected MethodHandler createHandler(Method methodByCreate, Object objectInWhichMethod, Object... argsMethodByCreate){
         Object[] object = new Object[]{null};
 
         return (proxy, method, proceed, args) -> {
-            if(object[0] == null) object[0] = methodByCreate.invoke(objectInWhichMethod, argsMethodByCreate);
-            return method.invoke(object[0], args);
+            try {
+                if (object[0] == null) object[0] = methodByCreate.invoke(objectInWhichMethod, argsMethodByCreate);
+                return method.invoke(object[0], args);
+            } catch (Exception e){
+                throw new ProxyInstanceException(e);
+            }
         };
     }
 }

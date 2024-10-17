@@ -11,7 +11,6 @@ import by.smertex.realisation.elements.IsolationLevel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.*;
 
@@ -20,9 +19,8 @@ public class SessionBasicRealisation implements Session {
     private final Connection connection;
     private final QueryBuilder queryBuilder;
     private final EntityManager entityManager;
-    private final ProxyEntityBuilder proxyEntityBuilder;
     private final Cache cache;
-    private final Method methodForBuildEntityInstance;
+    private final LazyInitializer lazyInitializer;
     private Transaction transaction;
 
     public void beginTransaction() {
@@ -50,19 +48,14 @@ public class SessionBasicRealisation implements Session {
     }
 
     public Object find(Class<?> entity, CompositeKey compositeKey) throws SessionException {
-        try {
-            Object entityInCache = findEntityInCache(entity, compositeKey);
-            if(entityInCache != null) return entityInCache;
-        } catch (IllegalAccessException e) {
-            throw new SessionException(e);
-        }
+        Object instance = findEntityInCache(entity, compositeKey);
+        if(instance != null) return instance;
 
         String sql = queryBuilder.selectSql(entity, compositeKey);
         System.out.println(sql);
         try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery()){
 
-            Object instance = null;
             if(resultSet.next()) instance = buildInstance(entity, resultSet);
             return instance;
 
@@ -87,18 +80,21 @@ public class SessionBasicRealisation implements Session {
         return false;
     }
 
-    private Object findEntityInCache(Class<?> entity, CompositeKey compositeKey) throws IllegalAccessException {
-        List<Object> entities = cache.getEntityInCacheByType(entity);
-        List<Field> id = entityManager.isIdField(entity);
+    private Object findEntityInCache(Class<?> entity, CompositeKey compositeKey) {
+        List<Field> idFields = entityManager.isIdField(entity);
         Map<String, Object> compositeKeyMap = compositeKey.getKeys();
         boolean flag = false;
 
-        for(Object instance: entities){
-            for(Field field: id){
-               flag = field.get(instance).equals(compositeKeyMap.get(field.getName()));
-               if(!flag) break;
+        try {
+            for (Object instance : cache.getEntityInCacheByType(entity)) {
+                for (Field field : idFields) {
+                    flag = field.get(instance).equals(compositeKeyMap.get(field.getName()));
+                    if (!flag) break;
+                }
+                if (flag) return instance;
             }
-            if(flag) return instance;
+        } catch (IllegalAccessException e) {
+            throw new SessionException(e);
         }
 
         return null;
@@ -123,11 +119,15 @@ public class SessionBasicRealisation implements Session {
     }
 
     private Object buildRelationshipEntityInstance(Field field, ResultSet fieldValues) throws InstantiationException, IllegalAccessException, SQLException {
-        CompositeKey key = new CompositeKeyBasicRealisation(field.getType());
-        key.setValue("id", fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
-        return entityManager.isLazyRelationship(field) ?
-                proxyEntityBuilder.createProxy(field.getType(), methodForBuildEntityInstance, this, field.getType(), key)
-                : buildInstance(field.getType(), fieldValues);
+        try {
+            Object object = field.getType().getDeclaredConstructor().newInstance();
+            for(Field idField: entityManager.isIdField(object.getClass())){
+                idField.set(object, fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
+            }
+            return lazyInitializer.initialize(object);
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void fieldSet(Field field, Object instance, Object relationship) throws IllegalAccessException {
@@ -160,19 +160,18 @@ public class SessionBasicRealisation implements Session {
                                       IsolationLevel level,
                                       Cache cache,
                                       EntityManager entityManager,
-                                      ProxyEntityBuilder proxyEntityBuilder,
+                                      LazyInitializerFactory lazyInitializerFactory,
                                       QueryBuilder queryBuilder){
         this.connection = connection;
         try {
             connection.setAutoCommit(false);
-            this.methodForBuildEntityInstance = SessionBasicRealisation.class.getDeclaredMethod("find", Class.class, CompositeKey.class);
-        } catch (SQLException | NoSuchMethodException e) {
+        } catch (SQLException e) {
             throw new SessionException(e);
         }
         setIsolationLevel(level);
         this.cache = cache;
         this.queryBuilder = queryBuilder;
         this.entityManager = entityManager;
-        this.proxyEntityBuilder = proxyEntityBuilder;
+        this.lazyInitializer = lazyInitializerFactory.createLazyInitializer(this);
     }
 }

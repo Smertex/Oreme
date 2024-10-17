@@ -86,7 +86,6 @@ public class EntityManagerBasicRealisation implements EntityManager {
                 .collect(Collectors.toList());
     }
 
-
     private List<Field> createListFields(List<Field> fields){
         return fields.stream()
                 .filter(field -> field.getDeclaredAnnotation(Column.class) != null)

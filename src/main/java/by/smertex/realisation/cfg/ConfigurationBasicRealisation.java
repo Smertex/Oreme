@@ -25,6 +25,7 @@ public class ConfigurationBasicRealisation implements Configuration{
     private final ProxyEntityBuilder proxyEntityBuilder;
     private final QueryBuilder queryBuilder;
     private final CacheFactory sessionCacheFactory;
+    private final LazyInitializerFactory lazyInitializerFactory;
 
     public ConfigurationBasicRealisation(){
         this.xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
@@ -40,6 +41,7 @@ public class ConfigurationBasicRealisation implements Configuration{
         this.proxyEntityBuilder = new ProxyEntityBuilderBasicRealisation();
         this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
         this.sessionCacheFactory = new CacheFactoryBasicRealisation();
+        this.lazyInitializerFactory = new LazyInitializerFactoryBasicRealisation(proxyEntityBuilder, entityManager);
         initializationDataBase();
     }
 
@@ -54,7 +56,7 @@ public class ConfigurationBasicRealisation implements Configuration{
                 initializationManager.getConfiguration().isolationLevel(),
                 sessionCacheFactory,
                 entityManager,
-                proxyEntityBuilder,
+                lazyInitializerFactory,
                 queryBuilder);
     }
 }

@@ -1,7 +1,6 @@
 package by.smertex.interfaces.application.session;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface Crud {
 

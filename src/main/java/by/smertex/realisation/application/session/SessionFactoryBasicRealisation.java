@@ -1,11 +1,8 @@
 package by.smertex.realisation.application.session;
 
 import by.smertex.interfaces.application.builders.QueryBuilder;
-import by.smertex.interfaces.application.session.CacheFactory;
-import by.smertex.interfaces.application.session.ProxyEntityBuilder;
+import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.ConnectionManager;
-import by.smertex.interfaces.application.session.Session;
-import by.smertex.interfaces.application.session.SessionFactory;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.realisation.elements.IsolationLevel;
 
@@ -21,7 +18,7 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final CacheFactory cacheFactory;
 
-    private final ProxyEntityBuilder proxyEntityBuilder;
+    private final LazyInitializerFactory lazyInitializerFactory;
 
     @Override
     public Session openSession() {
@@ -30,7 +27,7 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                 basicIsolationLevel,
                 cacheFactory.createCache(),
                 entityManager,
-                proxyEntityBuilder,
+                lazyInitializerFactory,
                 queryBuilder);
     }
 
@@ -38,13 +35,13 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                                           IsolationLevel basicIsolationLevel,
                                           CacheFactory cacheFactory,
                                           EntityManager entityManager,
-                                          ProxyEntityBuilder proxyEntityBuilder,
+                                          LazyInitializerFactory lazyInitializerFactory,
                                           QueryBuilder queryBuilder) {
         this.connectionManager = connectionManager;
         this.basicIsolationLevel = basicIsolationLevel;
         this.queryBuilder = queryBuilder;
         this.cacheFactory = cacheFactory;
         this.entityManager = entityManager;
-        this.proxyEntityBuilder = proxyEntityBuilder;
+        this.lazyInitializerFactory = lazyInitializerFactory;
     }
 }
