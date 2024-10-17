@@ -4,6 +4,7 @@ import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.cfg.EntityManager;
+import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.elements.IsolationLevel;
 
 public class SessionFactoryBasicRealisation implements SessionFactory {
@@ -20,6 +21,8 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final LazyInitializerFactory lazyInitializerFactory;
 
+    private final ResultSetToObjectMapper resultSetToObjectMapper;
+
     @Override
     public Session openSession() {
         return new SessionBasicRealisation(
@@ -27,6 +30,7 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                 basicIsolationLevel,
                 cacheFactory.createCache(),
                 entityManager,
+                resultSetToObjectMapper,
                 lazyInitializerFactory,
                 queryBuilder);
     }
@@ -36,12 +40,14 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                                           CacheFactory cacheFactory,
                                           EntityManager entityManager,
                                           LazyInitializerFactory lazyInitializerFactory,
-                                          QueryBuilder queryBuilder) {
+                                          QueryBuilder queryBuilder,
+                                          ResultSetToObjectMapper resultSetToObjectMapper) {
         this.connectionManager = connectionManager;
         this.basicIsolationLevel = basicIsolationLevel;
         this.queryBuilder = queryBuilder;
         this.cacheFactory = cacheFactory;
         this.entityManager = entityManager;
         this.lazyInitializerFactory = lazyInitializerFactory;
+        this.resultSetToObjectMapper = resultSetToObjectMapper;
     }
 }

@@ -5,6 +5,7 @@ import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.*;
 import by.smertex.interfaces.loaders.*;
 import by.smertex.interfaces.mapper.Mapper;
+import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.application.builders.*;
 import by.smertex.realisation.application.session.*;
 import by.smertex.realisation.elements.*;
@@ -26,6 +27,7 @@ public class ConfigurationBasicRealisation implements Configuration{
     private final QueryBuilder queryBuilder;
     private final CacheFactory sessionCacheFactory;
     private final LazyInitializerFactory lazyInitializerFactory;
+    private final ResultSetToObjectMapper resultSetToObjectMapper;
 
     public ConfigurationBasicRealisation(){
         this.xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
@@ -42,6 +44,7 @@ public class ConfigurationBasicRealisation implements Configuration{
         this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
         this.sessionCacheFactory = new CacheFactoryBasicRealisation();
         this.lazyInitializerFactory = new LazyInitializerFactoryBasicRealisation(proxyEntityBuilder, entityManager);
+        this.resultSetToObjectMapper = new ResultSetToObjectMapperBasicRealisation(entityManager);
         initializationDataBase();
     }
 
@@ -57,6 +60,7 @@ public class ConfigurationBasicRealisation implements Configuration{
                 sessionCacheFactory,
                 entityManager,
                 lazyInitializerFactory,
-                queryBuilder);
+                queryBuilder,
+                resultSetToObjectMapper);
     }
 }
