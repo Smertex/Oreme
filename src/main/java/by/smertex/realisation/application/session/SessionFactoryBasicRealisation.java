@@ -1,11 +1,12 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.interfaces.application.builders.InstanceBuilder;
 import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.CacheFactory;
+import by.smertex.interfaces.application.session.ProxyEntityBuilder;
 import by.smertex.interfaces.cfg.ConnectionManager;
 import by.smertex.interfaces.application.session.Session;
 import by.smertex.interfaces.application.session.SessionFactory;
+import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.realisation.elements.IsolationLevel;
 
 public class SessionFactoryBasicRealisation implements SessionFactory {
@@ -14,12 +15,13 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
 
     private final IsolationLevel basicIsolationLevel;
 
-    private final InstanceBuilder instanceBuilder;
-
     private final QueryBuilder queryBuilder;
+
+    private final EntityManager entityManager;
 
     private final CacheFactory cacheFactory;
 
+    private final ProxyEntityBuilder proxyEntityBuilder;
 
     @Override
     public Session openSession() {
@@ -27,19 +29,22 @@ public class SessionFactoryBasicRealisation implements SessionFactory {
                 connectionManager.getConnection(),
                 basicIsolationLevel,
                 cacheFactory.createCache(),
-                instanceBuilder,
+                entityManager,
+                proxyEntityBuilder,
                 queryBuilder);
     }
 
     public SessionFactoryBasicRealisation(ConnectionManager connectionManager,
                                           IsolationLevel basicIsolationLevel,
                                           CacheFactory cacheFactory,
-                                          InstanceBuilder instanceBuilder,
+                                          EntityManager entityManager,
+                                          ProxyEntityBuilder proxyEntityBuilder,
                                           QueryBuilder queryBuilder) {
         this.connectionManager = connectionManager;
         this.basicIsolationLevel = basicIsolationLevel;
-        this.instanceBuilder = instanceBuilder;
         this.queryBuilder = queryBuilder;
         this.cacheFactory = cacheFactory;
+        this.entityManager = entityManager;
+        this.proxyEntityBuilder = proxyEntityBuilder;
     }
 }

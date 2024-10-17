@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface Crud {
 
-    Optional<Object> find(Class<?> entity, Long id);
+    Object find(Class<?> entity, Long id);
 
     List<Object> findAll(Class<?> entity);
 

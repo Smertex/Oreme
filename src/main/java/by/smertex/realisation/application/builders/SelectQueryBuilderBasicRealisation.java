@@ -14,16 +14,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
 public abstract class SelectQueryBuilderBasicRealisation
-        extends AbstractQueryBuilderBasicRealisation implements QueryBuilder, EntityCollector {
+        extends AbstractQueryBuilderBasicRealisation implements QueryBuilder {
 
     @Override
     public String selectSql(Class<?> entity) {
         return SELECT_SQL.formatted(selectGenerate(entity)) + fromFieldSql(entity) + joinsGenerate(entity);
-    }
-
-    @Override
-    public String selectSql(Class<?> entity, Object id) {
-        return selectSql(entity) + WHERE_SQL.formatted(generatedWhereSql(entity, id));
     }
 
     @Override
@@ -50,7 +45,7 @@ public abstract class SelectQueryBuilderBasicRealisation
     private String columnNameGenerate(Field field){
         String columnName = concatPoint(field.getDeclaringClass().getDeclaredAnnotation(Table.class).name(),
                 field.getDeclaredAnnotation(Column.class).name());
-        return AS_SQL.formatted(columnName, columnName.replace(".", COLUMN_NAME_SEPARATOR));
+        return AS_SQL.formatted(columnName, columnName.replace(".", EntityCollector.COLUMN_NAME_SEPARATOR));
     }
 
     private String joinsGenerate(Class<?> entity){

@@ -4,6 +4,7 @@ import by.smertex.interfaces.application.session.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CacheBasicRealisation implements Cache {

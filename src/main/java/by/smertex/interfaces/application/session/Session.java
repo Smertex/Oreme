@@ -13,5 +13,7 @@ public interface Session extends Closeable, Crud {
 
     void setIsolationLevel(IsolationLevel level);
 
-    Optional<Object> find(Class<?> entity, CompositeKey compositeKey);
+    Object find(Class<?> entity, CompositeKey compositeKey);
+
+    Boolean isClose();
 }

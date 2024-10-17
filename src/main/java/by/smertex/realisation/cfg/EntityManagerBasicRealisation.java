@@ -1,6 +1,7 @@
 package by.smertex.realisation.cfg;
 
 import by.smertex.annotation.entity.fields.columns.Column;
+import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.annotation.entity.fields.communications.*;
 import by.smertex.exceptions.cfg.EntityManagerException;
 import by.smertex.interfaces.cfg.EntityManager;
@@ -11,6 +12,7 @@ import org.w3c.dom.Node;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EntityManagerBasicRealisation implements EntityManager {
 
@@ -77,10 +79,18 @@ public class EntityManagerBasicRealisation implements EntityManager {
         return relationshipField.get(key) != null;
     }
 
+    @Override
+    public List<Field> isIdField(Class<?> entity) {
+        return entities.get(entity).stream()
+                .filter(field -> field.getDeclaredAnnotation(Id.class) != null)
+                .collect(Collectors.toList());
+    }
+
 
     private List<Field> createListFields(List<Field> fields){
         return fields.stream()
                 .filter(field -> field.getDeclaredAnnotation(Column.class) != null)
+                .peek(field -> field.setAccessible(true))
                 .toList();
     }
 

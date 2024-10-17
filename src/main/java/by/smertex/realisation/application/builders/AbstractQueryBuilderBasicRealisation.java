@@ -34,13 +34,6 @@ public abstract class AbstractQueryBuilderBasicRealisation implements QueryBuild
         throw new QueryBuilderException(new RuntimeException());
     }
 
-    protected String generatedWhereSql(Class<?> entity, Object id) {
-        Field[] field = fieldIdCollector(entity);
-        if(field.length != 1) throw new QueryBuilderException(new RuntimeException());
-        return equalityGenerate(concatPoint(entity.getAnnotation(Table.class).name(), field[0].getName()),
-                id.toString());
-    }
-
     protected String generateWhereSqlWithCompositeKey(Class<?> entity, CompositeKey compositeKey){
         return Arrays.stream(fieldIdCollector(entity))
                 .filter(column -> compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()) != null)

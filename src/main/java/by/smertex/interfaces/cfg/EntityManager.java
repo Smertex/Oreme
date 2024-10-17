@@ -22,6 +22,8 @@ public interface EntityManager {
 
     Boolean isRelationship(Field key);
 
+    List<Field> isIdField(Class<?> entity);
+
     default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
             throw new ClassNotEntity(new RuntimeException());

@@ -12,8 +12,6 @@ import by.smertex.realisation.loaders.*;
 import by.smertex.realisation.mappers.*;
 import org.w3c.dom.Node;
 
-import java.sql.ResultSet;
-import java.util.Map;
 import java.util.Set;
 
 public class ConfigurationBasicRealisation implements Configuration{
@@ -21,19 +19,16 @@ public class ConfigurationBasicRealisation implements Configuration{
     private final ConnectionManager connectionManager;
     private final InitializationManager initializationManager;
     private final EntityManager entityManager;
-    private final Mapper<Map<String, Object>, ResultSet> resultSetToMapMapper;
     private final Mapper<ConnectionManagerConfiguration, Node> xmlElementToConnectionManagerConfigurationMapper;
     private final Mapper<InitializationConfiguration, Node> xmlElementToInitializationConfigurationMapper;
     private final Mapper<Set<String>, Node> xmlElementToSetEntityClassesMapper;
     private final ProxyEntityBuilder proxyEntityBuilder;
     private final QueryBuilder queryBuilder;
-    private final InstanceBuilder instanceBuilder;
     private final CacheFactory sessionCacheFactory;
 
     public ConfigurationBasicRealisation(){
         this.xmlElementLoader = XmlElementLoaderBasicRealisation.getInstance();
 
-        this.resultSetToMapMapper = ResultSetToMapMapper.getInstance();
         this.xmlElementToConnectionManagerConfigurationMapper = XmlElementToConnectionManagerConfigurationMapper.getInstance();
         this.xmlElementToInitializationConfigurationMapper = XmlElementToInitializationConfigurationMapper.getInstance();
         this.xmlElementToSetEntityClassesMapper = XmlElementToSetEntityClassesMapper.getInstance();
@@ -44,7 +39,6 @@ public class ConfigurationBasicRealisation implements Configuration{
 
         this.proxyEntityBuilder = new ProxyEntityBuilderBasicRealisation();
         this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
-        this.instanceBuilder = new InstanceBuilderBasicRealisation(entityManager, proxyEntityBuilder);
         this.sessionCacheFactory = new CacheFactoryBasicRealisation();
         initializationDataBase();
     }
@@ -59,7 +53,8 @@ public class ConfigurationBasicRealisation implements Configuration{
         return new SessionFactoryBasicRealisation(connectionManager,
                 initializationManager.getConfiguration().isolationLevel(),
                 sessionCacheFactory,
-                instanceBuilder,
+                entityManager,
+                proxyEntityBuilder,
                 queryBuilder);
     }
 }

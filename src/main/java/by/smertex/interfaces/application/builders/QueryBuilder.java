@@ -24,8 +24,6 @@ public interface QueryBuilder {
 
     String selectSql(Class<?> entity);
 
-    String selectSql(Class<?> entity, Object id);
-
     String selectSql(Class<?> entity, CompositeKey compositeKey);
 
     String updateSql(Class<?> entity);
