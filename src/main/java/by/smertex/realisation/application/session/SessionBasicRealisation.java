@@ -11,7 +11,6 @@ import java.sql.*;
 import java.util.*;
 
 public class SessionBasicRealisation implements Session {
-
     private final Connection connection;
     private final QueryBuilder queryBuilder;
     private final EntityManager entityManager;
@@ -85,7 +84,7 @@ public class SessionBasicRealisation implements Session {
 
     private void objectToProxy(Object object){
         entityManager.getClassFields(object.getClass()).stream()
-                .filter(entityManager::isRelationship)
+                .filter(entityManager::isLazyRelationship)
                 .forEach(field -> {
                     try {
                         field.set(object, lazyInitializer.initialize(field.get(object)));

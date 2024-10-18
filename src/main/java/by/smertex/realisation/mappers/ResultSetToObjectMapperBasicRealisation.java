@@ -43,7 +43,6 @@ public class ResultSetToObjectMapperBasicRealisation implements ResultSetToObjec
     private Object createObject(ResultSet resultSet, Class<?> objectClass, Field field) throws SQLException {
         if(field.getDeclaredAnnotation(EnumColumn.class) != null  && field.getType().isEnum())
             return enumInstanceGet(resultSet, objectClass, field);
-
         return resultSet.getObject(rowGenerate(objectClass, field));
     }
 
@@ -58,10 +57,13 @@ public class ResultSetToObjectMapperBasicRealisation implements ResultSetToObjec
 
     private Object buildRelationshipEntityInstance(Field field, ResultSet fieldValues) throws InstantiationException, IllegalAccessException, SQLException, NoSuchMethodException, InvocationTargetException {
         Object object = field.getType().getDeclaredConstructor().newInstance();
-        for (Field idField : entityManager.isIdField(object.getClass()))
-            idField.set(object, fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
+        if(entityManager.isLazyRelationship(field)) {
+            for (Field idField : entityManager.isIdField(object.getClass()))
+                idField.set(object, fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
+            return object;
+        }
 
-        return object;
+        return map(field.getType(), fieldValues);
     }
 
     private void fieldSet(Field field, Object instance, Object relationship) throws IllegalAccessException {
