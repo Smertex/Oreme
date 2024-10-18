@@ -2,6 +2,8 @@ package by.smertex.realisation.mappers;
 
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
+import by.smertex.annotation.entity.fields.columns.EnumColumn;
+import by.smertex.annotation.entity.fields.columns.EnumValueType;
 import by.smertex.exceptions.mapper.ResultSetToObjectMapperException;
 import by.smertex.interfaces.application.builders.EntityCollector;
 import by.smertex.interfaces.cfg.EntityManager;
@@ -27,9 +29,9 @@ public class ResultSetToObjectMapperBasicRealisation implements ResultSetToObjec
             Object instanceClass = objectClass.getDeclaredConstructor().newInstance();
             List<Field> fields = entityManager.getClassFields(instanceClass.getClass());
 
-            for(Field field: fields){
+            for(Field field: fields) {
                 Object relationship = entityManager.isRelationship(field) ?
-                        buildRelationshipEntityInstance(field, resultSet) : resultSet.getObject(rowGenerate(objectClass, field));
+                        buildRelationshipEntityInstance(field, resultSet) : createObject(resultSet, objectClass, field);
                 fieldSet(field, instanceClass, relationship);
             }
             return instanceClass;
@@ -38,11 +40,27 @@ public class ResultSetToObjectMapperBasicRealisation implements ResultSetToObjec
         }
     }
 
+    private Object createObject(ResultSet resultSet, Class<?> objectClass, Field field) throws SQLException {
+        if(field.getDeclaredAnnotation(EnumColumn.class) != null  && field.getType().isEnum())
+            return enumInstanceGet(resultSet, objectClass, field);
+
+        return resultSet.getObject(rowGenerate(objectClass, field));
+    }
+
+    @SuppressWarnings("all")
+    private Object enumInstanceGet(ResultSet resultSet, Class<?> objectClass, Field field) throws SQLException {
+        String result = resultSet.getString(rowGenerate(objectClass, field));
+
+        if(field.getDeclaredAnnotation(EnumColumn.class).valueType().equals(EnumValueType.NUMERIC))
+            return field.getType().getEnumConstants()[Integer.parseInt(result) - 1];
+        return Enum.valueOf((Class<Enum>) field.getType(), result);
+    }
+
     private Object buildRelationshipEntityInstance(Field field, ResultSet fieldValues) throws InstantiationException, IllegalAccessException, SQLException, NoSuchMethodException, InvocationTargetException {
         Object object = field.getType().getDeclaredConstructor().newInstance();
-        for (Field idField : entityManager.isIdField(object.getClass())) {
+        for (Field idField : entityManager.isIdField(object.getClass()))
             idField.set(object, fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
-        }
+
         return object;
     }
 

@@ -88,10 +88,9 @@ public class SessionBasicRealisation implements Session {
                 .filter(entityManager::isRelationship)
                 .forEach(field -> {
                     try {
-                        Object o = field.get(object);
-                        field.set(object, lazyInitializer.initialize(o));
+                        field.set(object, lazyInitializer.initialize(field.get(object)));
                     } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
+                        throw new SessionException(e);
                     }
                 });
     }
@@ -120,17 +119,17 @@ public class SessionBasicRealisation implements Session {
                                       ResultSetToObjectMapper resultSetToObjectMapper,
                                       LazyInitializerFactory lazyInitializerFactory,
                                       QueryBuilder queryBuilder){
-        this.connection = connection;
         try {
+            this.connection = connection;
             connection.setAutoCommit(false);
+            setIsolationLevel(level);
+            this.cache = cache;
+            this.queryBuilder = queryBuilder;
+            this.entityManager = entityManager;
+            this.lazyInitializer = lazyInitializerFactory.createLazyInitializer(this);
+            this.resultSetToObjectMapper = resultSetToObjectMapper;
         } catch (SQLException e) {
             throw new SessionException(e);
         }
-        setIsolationLevel(level);
-        this.cache = cache;
-        this.queryBuilder = queryBuilder;
-        this.entityManager = entityManager;
-        this.lazyInitializer = lazyInitializerFactory.createLazyInitializer(this);
-        this.resultSetToObjectMapper = resultSetToObjectMapper;
     }
 }
