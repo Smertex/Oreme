@@ -1,9 +1,5 @@
 package by.smertex.realisation.application.builders;
 
-import by.smertex.annotation.entity.classes.Table;
-import by.smertex.annotation.entity.fields.columns.Column;
-import by.smertex.interfaces.application.builders.EntityCollector;
-import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.CompositeKey;
 import by.smertex.interfaces.cfg.EntityManager;
 
