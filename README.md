@@ -1,3 +1,12 @@
+##ORM
+Библиотека, которая помогает преобразовывать реляционную модель в объектную по средством использования аннотаций. Возможности:
+1. Поиск (реализовано всё, за исключением связей "N to many")
+2. Обновление (не реализовано)
+3. Сохранение (не реализовано)
+4. Удаление (не реализовано)
+
+Все CRUD операции работаю в рамках сессий. Сессии отвечают за контроль над объектами, таким образом может существовать только единственный экземпляр конкретной записи
+
 ## Структура XML
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
@@ -12,7 +21,7 @@
     </connection-manager-configuration>
     <initialization-configuration>
         <property name="strategy"></property>
-        <property name="query-generate"></property> <!-- optional, base value "false" -->
+        <property name="session-cache"></property>
         <property name="isolation-level"></property> <!-- optional, base value "serializable" -->
     </initialization-configuration>
     <entities>
