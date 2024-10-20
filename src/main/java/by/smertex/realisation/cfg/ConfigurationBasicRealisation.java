@@ -41,10 +41,10 @@ public class ConfigurationBasicRealisation implements Configuration{
         this.entityManager = new EntityManagerBasicRealisation(xmlElementLoader, xmlElementToSetEntityClassesMapper);
 
         this.proxyEntityBuilder = new ProxyEntityBuilderBasicRealisation();
-        this.queryBuilder = new QueryBuilderBasicRealisation(entityManager);
+        this.queryBuilder = new QueryBuilderForNoJoin(entityManager);
         this.sessionCacheFactory = new CacheFactoryBasicRealisation();
         this.lazyInitializerFactory = new LazyInitializerFactoryBasicRealisation(proxyEntityBuilder, entityManager);
-        this.resultSetToObjectMapper = new ResultSetToObjectMapperBasicRealisation(entityManager);
+        this.resultSetToObjectMapper = new ResultSetToObjectMapperForNoJoin(entityManager);
         initializationDataBase();
     }
 

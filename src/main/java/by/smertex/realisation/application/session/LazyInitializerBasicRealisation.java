@@ -14,11 +14,8 @@ import java.util.List;
 public class LazyInitializerBasicRealisation implements LazyInitializer {
 
     private final Session session;
-
     private final ProxyEntityBuilder proxyEntityBuilder;
-
     private final EntityManager entityManager;
-
     private Method method;
 
     public LazyInitializerBasicRealisation(Session session, ProxyEntityBuilder proxyEntityBuilder, EntityManager entityManager){

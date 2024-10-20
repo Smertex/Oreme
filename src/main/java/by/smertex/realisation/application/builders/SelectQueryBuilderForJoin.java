@@ -3,8 +3,6 @@ package by.smertex.realisation.application.builders;
 import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.exceptions.application.QueryBuilderException;
-import by.smertex.interfaces.application.builders.EntityCollector;
-import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.CompositeKey;
 import by.smertex.interfaces.cfg.EntityManager;
 
@@ -13,8 +11,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
-public abstract class SelectQueryBuilderBasicRealisation
-        extends AbstractQueryBuilderBasicRealisation implements QueryBuilder {
+public abstract class SelectQueryBuilderForJoin
+        extends AbstractQueryBuilderBasicRealisation {
 
     @Override
     public String selectSql(Class<?> entity) {
@@ -42,11 +40,6 @@ public abstract class SelectQueryBuilderBasicRealisation
                 columnNameGenerate(field) : columnNameGenerate(field) + ", \n\t" + selectGenerate(field.getType());
     }
 
-    private String columnNameGenerate(Field field){
-        String columnName = concatPoint(field.getDeclaringClass().getDeclaredAnnotation(Table.class).name(),
-                field.getDeclaredAnnotation(Column.class).name());
-        return AS_SQL.formatted(columnName, columnName.replace(".", EntityCollector.COLUMN_NAME_SEPARATOR));
-    }
 
     private String joinsGenerate(Class<?> entity){
         return entityManager.getClassFields(entity).stream()
@@ -83,7 +76,7 @@ public abstract class SelectQueryBuilderBasicRealisation
         throw new QueryBuilderException(new RuntimeException());
     }
 
-    protected SelectQueryBuilderBasicRealisation(EntityManager entityManager) {
+    protected SelectQueryBuilderForJoin(EntityManager entityManager) {
         super(entityManager);
     }
 }

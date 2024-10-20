@@ -21,7 +21,7 @@ public class XmlElementToInitializationConfigurationMapper implements Mapper<Ini
             return new InitializationConfiguration.BuilderInitializationConfiguration()
                     .setInitializationStrategy(InitializationStrategy.valueOf(property.get("strategy").toUpperCase()))
                     .setIsolationLevel(property.get("isolation-level"))
-                    .setQueryGenerate(property.get("query-generate"))
+                    .setSessionCache(property.get("session-cache"))
                     .build();
         } catch (RuntimeException e){
             throw new MapFromException(e);

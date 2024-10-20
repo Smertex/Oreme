@@ -4,6 +4,7 @@ import by.smertex.annotation.entity.classes.Table;
 import by.smertex.annotation.entity.fields.columns.Column;
 import by.smertex.annotation.entity.fields.columns.Id;
 import by.smertex.exceptions.application.QueryBuilderException;
+import by.smertex.interfaces.application.builders.EntityCollector;
 import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.CompositeKey;
 import by.smertex.interfaces.cfg.EntityManager;
@@ -43,6 +44,12 @@ public abstract class AbstractQueryBuilderBasicRealisation implements QueryBuild
                         compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()).toString())
                 )
                 .collect(Collectors.joining(AND_SQL));
+    }
+
+    protected String columnNameGenerate(Field field){
+        String columnName = concatPoint(field.getDeclaringClass().getDeclaredAnnotation(Table.class).name(),
+                field.getDeclaredAnnotation(Column.class).name());
+        return AS_SQL.formatted(columnName, columnName.replace(".", EntityCollector.COLUMN_NAME_SEPARATOR));
     }
 
     protected String equalityGenerate(String el1, String el2){

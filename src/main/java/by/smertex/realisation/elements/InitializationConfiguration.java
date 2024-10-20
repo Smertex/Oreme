@@ -2,14 +2,14 @@ package by.smertex.realisation.elements;
 
 public record InitializationConfiguration(InitializationStrategy initializationStrategy,
                                           IsolationLevel isolationLevel,
-                                          Boolean queryGenerate) {
+                                          Boolean sessionCache) {
 
     public static final class BuilderInitializationConfiguration{
         private InitializationStrategy initializationStrategy;
 
         private IsolationLevel isolationLevel;
 
-        private Boolean queryGenerate;
+        private Boolean sessionCache;
 
         public BuilderInitializationConfiguration setInitializationStrategy(InitializationStrategy initializationStrategy) {
             this.initializationStrategy = initializationStrategy;
@@ -22,13 +22,13 @@ public record InitializationConfiguration(InitializationStrategy initializationS
             return this;
         }
 
-        public BuilderInitializationConfiguration setQueryGenerate(String queryGenerate) {
-            this.queryGenerate = Boolean.parseBoolean(queryGenerate);
+        public BuilderInitializationConfiguration setSessionCache(String sessionCache) {
+            this.sessionCache = Boolean.parseBoolean(sessionCache);
             return this;
         }
 
         public InitializationConfiguration build(){
-            return new InitializationConfiguration(initializationStrategy, isolationLevel, queryGenerate);
+            return new InitializationConfiguration(initializationStrategy, isolationLevel, sessionCache);
         }
     }
 }
