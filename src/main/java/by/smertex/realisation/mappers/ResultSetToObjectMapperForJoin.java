@@ -39,7 +39,7 @@ public class ResultSetToObjectMapperForJoin
     private Object buildRelationshipEntityInstance(Field field, ResultSet fieldValues) throws InstantiationException, IllegalAccessException, SQLException, NoSuchMethodException, InvocationTargetException {
         Object object = field.getType().getDeclaredConstructor().newInstance();
         if(entityManager.isLazyRelationship(field)) {
-            for (Field idField : entityManager.isIdField(object.getClass()))
+            for (Field idField : entityManager.getIdField(object.getClass()))
                 idField.set(object, fieldValues.getObject(rowGenerate(field.getDeclaringClass(), field)));
             return object;
         }

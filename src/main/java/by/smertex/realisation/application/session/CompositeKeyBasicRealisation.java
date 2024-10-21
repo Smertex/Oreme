@@ -35,6 +35,11 @@ public class CompositeKeyBasicRealisation implements CompositeKey {
         initMapKeys(entity);
     }
 
+    public CompositeKeyBasicRealisation(Map<String, Object> keys){
+        this.keys.putAll(keys);
+    }
+
+
     private void initMapKeys(Class<?> entity){
         try {
             Arrays.stream(entity.getDeclaredFields())

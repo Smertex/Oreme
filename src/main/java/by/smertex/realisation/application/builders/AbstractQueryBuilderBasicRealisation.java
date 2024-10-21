@@ -10,7 +10,6 @@ import by.smertex.interfaces.application.session.CompositeKey;
 import by.smertex.interfaces.cfg.EntityManager;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,13 +35,8 @@ public abstract class AbstractQueryBuilderBasicRealisation implements QueryBuild
     }
 
     protected String generateWhereSqlWithCompositeKey(Class<?> entity, CompositeKey compositeKey){
-        return Arrays.stream(fieldIdCollector(entity))
-                .filter(column -> compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()) != null)
-                .map(column -> equalityGenerate(
-                        concatPoint(entity.getDeclaredAnnotation(Table.class).name(),
-                                column.getAnnotation(Column.class).name()),
-                        compositeKey.getValue(column.getDeclaredAnnotation(Column.class).name()).toString())
-                )
+        return compositeKey.getKeys().keySet().stream()
+                .map(key -> equalityGenerate(concatPoint(entity.getDeclaredAnnotation(Table.class).name(), key), compositeKey.getValue(key).toString()))
                 .collect(Collectors.joining(AND_SQL));
     }
 

@@ -30,7 +30,7 @@ public class LazyInitializerBasicRealisation implements LazyInitializer {
         if (session.isClose()) throw new LazyInitializationException(new RuntimeException());
 
         Class<?> objectClass = object.getClass();
-        List<Field> idFields = entityManager.isIdField(objectClass);
+        List<Field> idFields = entityManager.getIdField(objectClass);
         CompositeKey compositeKey = new CompositeKeyBasicRealisation(objectClass);
 
         try {

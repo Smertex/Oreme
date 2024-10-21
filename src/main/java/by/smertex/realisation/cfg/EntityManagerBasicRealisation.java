@@ -11,6 +11,7 @@ import org.w3c.dom.Node;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,9 +61,11 @@ public class EntityManagerBasicRealisation implements EntityManager {
     }
 
     @Override
-    public Annotation getRelationshipAnnotation(Field key) {
-        return relationshipField.get(key);
+    public Boolean fieldHaveToManyAnnotation(Field key) {
+        Annotation annotation = relationshipField.get(key);
+        return annotation instanceof OneToMany || annotation instanceof ManyToMany;
     }
+
 
     @Override
     public Boolean isLazyRelationship(Field key) {
@@ -71,6 +74,10 @@ public class EntityManagerBasicRealisation implements EntityManager {
             return ((ManyToOne) annotation).strategy().equals(QueryStrategy.LAZY);
         if (annotation instanceof OneToOne)
             return ((OneToOne) annotation).strategy().equals(QueryStrategy.LAZY);
+        if (annotation instanceof OneToMany)
+            return ((OneToMany) annotation).strategy().equals(QueryStrategy.LAZY);
+        if (annotation instanceof ManyToMany)
+            return ((ManyToMany) annotation).strategy().equals(QueryStrategy.LAZY);
         return false;
     }
 
@@ -80,10 +87,44 @@ public class EntityManagerBasicRealisation implements EntityManager {
     }
 
     @Override
-    public List<Field> isIdField(Class<?> entity) {
+    public List<Field> getIdField(Class<?> entity) {
         return entities.get(entity).stream()
                 .filter(field -> field.getDeclaredAnnotation(Id.class) != null)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getRelationshipMappedBy(Field key) {
+        Annotation annotation = relationshipField.get(key);
+        if (annotation instanceof ManyToOne)
+            return ((ManyToOne) annotation).mappedBy();
+        if (annotation instanceof OneToOne)
+            return ((OneToOne) annotation).mappedBy();
+        if (annotation instanceof ManyToMany)
+            return ((ManyToMany) annotation).mappedBy();
+        if (annotation instanceof OneToMany)
+            return ((OneToMany) annotation).mappedBy();
+
+        return null;
+    }
+
+    @Override
+    public Field getFieldIdByKeyFor(Class<?> entity, String relationship) {
+        for(Field fieldId: getIdField(entity)){
+            Id annotation = fieldId.getDeclaredAnnotation(Id.class);
+            for(int i = 0; i < annotation.keyFor().length; i++){
+                if(annotation.keyFor()[i].equals(relationship)){
+                    return fieldId;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Class<?> getGenericTypeInRelationshipCollection(Field field) {
+        ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+        return (Class<?>) parameterizedType.getActualTypeArguments()[0];
     }
 
     private List<Field> createListFields(List<Field> fields){

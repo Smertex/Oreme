@@ -6,7 +6,6 @@ import by.smertex.annotation.entity.classes.Table;
 import by.smertex.exceptions.cfg.ClassNotEntity;
 import by.smertex.exceptions.cfg.ClassNotFound;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -16,13 +15,19 @@ public interface EntityManager {
 
     List<Field> getClassFields(Class<?> key);
 
-    Annotation getRelationshipAnnotation(Field key);
+    Boolean fieldHaveToManyAnnotation(Field key);
 
     Boolean isLazyRelationship(Field key);
 
     Boolean isRelationship(Field key);
 
-    List<Field> isIdField(Class<?> entity);
+    List<Field> getIdField(Class<?> entity);
+
+    String getRelationshipMappedBy(Field field);
+
+    Field getFieldIdByKeyFor(Class<?> entity, String relationship);
+
+    Class<?> getGenericTypeInRelationshipCollection(Field field);
 
     default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
