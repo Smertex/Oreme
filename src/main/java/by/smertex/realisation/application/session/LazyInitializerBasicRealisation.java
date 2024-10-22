@@ -48,6 +48,11 @@ public class LazyInitializerBasicRealisation implements LazyInitializer {
         return session;
     }
 
+    @Override
+    public ProxyEntityBuilder getProxyEntityBuilder() {
+        return proxyEntityBuilder;
+    }
+
     private void initializationInitMethod(){
         try {
             this.method = Session.class.getDeclaredMethod("find", Class.class, CompositeKey.class);

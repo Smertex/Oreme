@@ -2,7 +2,7 @@ package by.smertex.realisation.application.builders;
 
 import by.smertex.interfaces.cfg.EntityManager;
 
-public class QueryBuilderForNoJoin extends SelectQueryBuilderForNoJoin{
+public class QueryBuilderBasicRealisation extends SelectQueryBuilder {
 
     @Override
     public String updateSql(Class<?> entity) {
@@ -19,7 +19,7 @@ public class QueryBuilderForNoJoin extends SelectQueryBuilderForNoJoin{
         return null;
     }
 
-    public QueryBuilderForNoJoin(EntityManager entityManager) {
+    public QueryBuilderBasicRealisation(EntityManager entityManager) {
         super(entityManager);
     }
 }

@@ -6,9 +6,9 @@ import by.smertex.interfaces.cfg.EntityManager;
 import java.lang.reflect.Field;
 import java.util.stream.Collectors;
 
-public abstract class SelectQueryBuilderForNoJoin
+public abstract class SelectQueryBuilder
         extends AbstractQueryBuilderBasicRealisation {
-    public SelectQueryBuilderForNoJoin(EntityManager entityManager) {
+    public SelectQueryBuilder(EntityManager entityManager) {
         super(entityManager);
     }
 

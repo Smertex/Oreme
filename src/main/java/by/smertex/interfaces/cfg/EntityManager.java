@@ -29,6 +29,8 @@ public interface EntityManager {
 
     Class<?> getGenericTypeInRelationshipCollection(Field field);
 
+    List<Field> getToManyRelationship(Class<?> entity);
+
     default void validationEntity(Class<?> clazz){
         if(clazz.getDeclaredAnnotation(Entity.class) == null || clazz.getDeclaredAnnotation(Table.class) == null)
             throw new ClassNotEntity(new RuntimeException());

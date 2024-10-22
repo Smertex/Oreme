@@ -6,4 +6,6 @@ public interface ProxyEntityBuilder {
 
     Object createProxy(Class<?> clazz, Method method, Object methodInstance, Object... args) throws InstantiationException, IllegalAccessException;
 
+    Object unproxy(Object proxy);
+
 }

@@ -57,7 +57,9 @@ public class EntityManagerBasicRealisation implements EntityManager {
 
     @Override
     public List<Field> getClassFields(Class<?> key) {
-        return entities.get(key);
+        return entities.get(key).stream()
+                .filter(field -> field.getDeclaredAnnotation(Column.class) != null)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -65,7 +67,6 @@ public class EntityManagerBasicRealisation implements EntityManager {
         Annotation annotation = relationshipField.get(key);
         return annotation instanceof OneToMany || annotation instanceof ManyToMany;
     }
-
 
     @Override
     public Boolean isLazyRelationship(Field key) {
@@ -127,9 +128,17 @@ public class EntityManagerBasicRealisation implements EntityManager {
         return (Class<?>) parameterizedType.getActualTypeArguments()[0];
     }
 
+    @Override
+    public List<Field> getToManyRelationship(Class<?> entity) {
+        return entities.get(entity).stream()
+                .filter(field -> field.getDeclaredAnnotation(OneToMany.class) != null
+                                 || field.getDeclaredAnnotation(ManyToMany.class) != null)
+                .collect(Collectors.toList());
+    }
+
     private List<Field> createListFields(List<Field> fields){
         return fields.stream()
-                .filter(field -> field.getDeclaredAnnotation(Column.class) != null)
+                .filter(field -> field.getDeclaredAnnotation(Column.class) != null || isRelationship(field))
                 .peek(field -> field.setAccessible(true))
                 .toList();
     }

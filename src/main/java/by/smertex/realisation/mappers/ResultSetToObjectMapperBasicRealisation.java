@@ -10,11 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ResultSetToObjectMapperForNoJoin
+public class ResultSetToObjectMapperBasicRealisation
         extends AbstractResultSetToObjectMapper implements ResultSetToObjectMapper {
     private final EntityManager entityManager;
 
-    public ResultSetToObjectMapperForNoJoin(EntityManager entityManager){
+    public ResultSetToObjectMapperBasicRealisation(EntityManager entityManager){
         this.entityManager = entityManager;
     }
 

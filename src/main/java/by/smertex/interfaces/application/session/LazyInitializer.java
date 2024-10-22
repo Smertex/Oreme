@@ -5,4 +5,6 @@ public interface LazyInitializer {
     Object initialize(Object object);
 
     Session getSession();
+
+    ProxyEntityBuilder getProxyEntityBuilder();
 }

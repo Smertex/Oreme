@@ -40,9 +40,8 @@ public class CacheBasicRealisation implements Cache {
     public Object getEntity(Class<?> clazz, CompositeKey compositeKey) {
         Map<CompositeKey, Object> entities = cacheMap.get(clazz);
 
-        if(entities != null) {
+        if(entities != null)
             return entities.get(compositeKey);
-        }
         return null;
     }
 

@@ -1,12 +1,14 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.annotation.entity.fields.columns.Column;
+import by.smertex.annotation.entity.classes.Entity;
 import by.smertex.exceptions.application.SessionException;
 import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.elements.IsolationLevel;
+import javassist.util.proxy.ProxyFactory;
+import javassist.util.proxy.ProxyObject;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -40,58 +42,35 @@ public class SessionBasicRealisation implements Session {
     }
 
     public Object find(Class<?> entity, Long id) {
-        CompositeKey key = new CompositeKeyBasicRealisation(entity);
-        key.setValue("id", id);
-        return find(entity, key);
+        CompositeKey compositeKey = new CompositeKeyBasicRealisation(entity);
+        compositeKey.setValue("id", id);
+        return find(entity, compositeKey);
     }
 
-    public Object find(Class<?> entity, CompositeKey compositeKey) throws SessionException {
-        Object instance = cache.getEntity(entity, compositeKey);
-        if(instance != null) return instance;
+    public Object find(Class<?> entity, CompositeKey compositeKey) {
+        Object entityInstance = cache.getEntity(entity, compositeKey);
+        if(entityInstance != null)
+            return entityInstance;
 
         String sql = queryBuilder.selectSql(entity, compositeKey);
-        System.out.println(sql);
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            ResultSet resultSet = preparedStatement.executeQuery();
+        List<Object> entityInstanceList = findObjectByQuery(entity, sql);
 
-            if(resultSet.next()) {
-                instance = resultSetToObjectMapper.map(entity, resultSet);
-                cache.addEntityInCache(entity, instance, listIdToCompositeKey(instance));
-                objectInitialization(entity, instance);
-            }
+        if(entityInstanceList.size() > 1)
+            throw new SessionException(new RuntimeException());
+        if(entityInstanceList.isEmpty())
+            return null;
 
-            return instance;
-        } catch (SQLException | IllegalAccessException e) {
-            throw new SessionException(e);
-        }
+        entityInstance = entityInstanceList.get(0);
+        initFieldRelationshipToMany(entity, entityInstance);
+
+        return entityInstance;
     }
 
     public List<Object> findAll(Class<?> entity) {
-        return findAllBySql(entity, queryBuilder.selectSql(entity));
-    }
-
-    private List<Object> findAllBySql(Class<?> entity, String sql){
-        List<Object> entities = new ArrayList<>();
-
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while(resultSet.next()){
-                Object instance = resultSetToObjectMapper.map(entity, resultSet);
-                Object instanceInCache = cache.getEntity(instance.getClass(), listIdToCompositeKey(instance));
-
-                if(instanceInCache != null) instance = instanceInCache;
-                else cache.addEntityInCache(entity, instance, listIdToCompositeKey(instance));
-
-                objectInitialization(entity, instance);
-                entities.add(instance);
-            }
-
-        } catch (SQLException | IllegalAccessException e) {
-            throw new SessionException(e);
-        }
-
-        return entities;
+        String sql = queryBuilder.selectSql(entity);
+        List<Object> entityInstance = findObjectByQuery(entity, sql);
+        entityInstance.forEach(instance -> initFieldRelationshipToMany(entity, instance));
+        return entityInstance;
     }
 
     public boolean update(Object entity) {
@@ -106,62 +85,93 @@ public class SessionBasicRealisation implements Session {
         return false;
     }
 
-    private void objectInitialization(Class<?> entity, Object instance) throws IllegalAccessException {
-        List<Field> fields = entityManager.getClassFields(entity).stream()
-                .filter(entityManager::isRelationship)
-                .toList();
-        initFieldRelationship(fields, instance);
-        feelingToManyRelationship(entity, instance);
-    }
+    private List<Object> findObjectByQuery(Class<?> entity, String sql) {
+        List<Object> entityInstanceList = new ArrayList<>();
 
-    private void initFieldRelationship(List<Field> fields, Object instance) throws IllegalAccessException {
-        for (Field field : fields) {
-            if (entityManager.isLazyRelationship(field)) {
-                field.set(instance, lazyInitializer.initialize(field.get(instance)));
-                continue;
+        System.out.println(sql);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                Object entityInstance = findEntityInstanceInCache(resultSetToObjectMapper.map(entity, resultSet));
+                initRelationshipInEntityInstance(entityInstance);
+                entityInstanceList.add(entityInstance);
             }
-            CompositeKey compositeKey = listIdToCompositeKey(field.get(instance));
-            field.set(instance, find(field.getType(), compositeKey));
+
+        } catch (SQLException e) {
+            throw new SessionException(e);
         }
+
+        return entityInstanceList;
     }
 
-    private CompositeKey listIdToCompositeKey(Object object) throws IllegalAccessException {
-        CompositeKey compositeKey = new CompositeKeyBasicRealisation(object.getClass());
-        for(Field field: entityManager.getIdField(object.getClass()))
-            compositeKey.setValue(field.getDeclaredAnnotation(Column.class).name(), field.get(object));
-        return compositeKey;
+    private Object findEntityInstanceInCache(Object entityInstance) {
+        Class<?> entity = entityInstance.getClass();
+        CompositeKey entityInstanceCompositeKey = Session.listIdToCompositeKey(entityManager, entityInstance);
+        Object entityInstanceInCache = cache.getEntity(entity, entityInstanceCompositeKey);
+
+        if(entityInstanceInCache == null){
+            cache.addEntityInCache(entity, entityInstance, entityInstanceCompositeKey);
+            entityInstanceInCache = entityInstance;
+        }
+
+        return entityInstanceInCache;
     }
 
-    private void feelingToManyRelationship(Class<?> entity, Object instance){
-         Arrays.stream(entity.getDeclaredFields())
-                .filter(entityManager::fieldHaveToManyAnnotation)
-                .forEach(field -> {
-                    try {
-                        feelingToManyField(entity, instance, field);
-                    } catch (IllegalAccessException e) {
-                        throw new SessionException(e);
-                    }
-                });
+    private void initRelationshipInEntityInstance(Object entityInstance){
+        Class<?> entity = entityInstance.getClass();
+        entityManager.getClassFields(entity).stream()
+                .filter(entityManager::isRelationship)
+                .forEach(field -> initFieldRelationshipToOne(field, entityInstance));
     }
 
-    @SuppressWarnings("all")
-    private void feelingToManyField(Class<?> entity, Object instance, Field field) throws IllegalAccessException {
+    private void initFieldRelationshipToOne(Field field, Object entityInstance){
         try {
-            field.setAccessible(true);
-            List<Object> relationshipInEntity = (List<Object>) field.get(instance);
+            //todo ЗДЕСЬ НАЧИНАЕТСЯ ГОВНОКОД, ИСПРАВЬ!!!!!!!!!!!!!!!!!
+            Object object = field.get(entityInstance);
 
-            String relationshipNameColumn = entityManager.getRelationshipMappedBy(field);
-            Object idRelationship = entityManager.getFieldIdByKeyFor(entity, relationshipNameColumn).get(instance);
-            Class<?> classRelationship = entityManager.getGenericTypeInRelationshipCollection(field);
-            CompositeKey compositeKey = new CompositeKeyBasicRealisation(Map.of(entityManager.getRelationshipMappedBy(field), idRelationship));
+            if(ProxyFactory.isProxyClass(object.getClass())){
+                object = lazyInitializer.getProxyEntityBuilder().unproxy(object);
+                int a = 5;
+            }
 
-            String sql = queryBuilder.selectSql(classRelationship, compositeKey);
-            System.out.println(sql);
-            relationshipInEntity.addAll(findAllBySql(classRelationship, sql));
-        } catch (RuntimeException e) {
+            CompositeKey compositeKey = Session.listIdToCompositeKey(entityManager, object);
+            Object relationshipEntityInstance = find(field.getType(), compositeKey);
+
+            if(entityManager.isLazyRelationship(field)) {
+                field.set(entityInstance, lazyInitializer.initialize(relationshipEntityInstance));
+                return;
+            }
+            field.set(entityInstance, relationshipEntityInstance);
+        } catch (IllegalAccessException e) {
             throw new SessionException(e);
         }
     }
+
+    private void initFieldRelationshipToMany(Class<?> entity, Object entityInstance){
+        List<Field> relationshipToMany = entityManager.getToManyRelationship(entity);
+
+        for(Field field: relationshipToMany) {
+            field.setAccessible(true);
+            try {
+                List<Object> relationshipInEntity = (List<Object>) field.get(entityInstance);
+                String relationshipMappedByColumn = entityManager.getRelationshipMappedBy(field);
+                Object idRelationship = entityManager.getFieldIdByKeyFor(entity, relationshipMappedByColumn).get(entityInstance);
+                Class<?> classRelationship = entityManager.getGenericTypeInRelationshipCollection(field);
+
+                CompositeKey compositeKey = new CompositeKeyBasicRealisation(Map.of(relationshipMappedByColumn, idRelationship));
+                String sql = queryBuilder.selectSql(classRelationship, compositeKey);
+
+                relationshipInEntity.addAll(findObjectByQuery(classRelationship, sql));
+
+
+            } catch (IllegalAccessException e) {
+                throw new SessionException(e);
+            }
+        }
+    }
+
 
     public Boolean isClose() {
         try {
