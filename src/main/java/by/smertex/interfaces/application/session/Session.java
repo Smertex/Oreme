@@ -5,7 +5,6 @@ import by.smertex.exceptions.application.SessionException;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.realisation.application.session.CompositeKeyBasicRealisation;
 import by.smertex.realisation.elements.IsolationLevel;
-import javassist.util.proxy.ProxyFactory;
 
 import java.io.Closeable;
 import java.lang.reflect.Field;

@@ -61,16 +61,14 @@ public class SessionBasicRealisation implements Session {
             return null;
 
         entityInstance = entityInstanceList.get(0);
-        initFieldRelationshipToMany(entity, entityInstance);
+        //initFieldRelationshipToMany(entity, entityInstance);
 
         return entityInstance;
     }
 
     public List<Object> findAll(Class<?> entity) {
         String sql = queryBuilder.selectSql(entity);
-        List<Object> entityInstance = findObjectByQuery(entity, sql);
-        entityInstance.forEach(instance -> initFieldRelationshipToMany(entity, instance));
-        return entityInstance;
+        return findObjectByQuery(entity, sql);
     }
 
     public boolean update(Object entity) {
@@ -95,7 +93,7 @@ public class SessionBasicRealisation implements Session {
 
             while (resultSet.next()){
                 Object entityInstance = findEntityInstanceInCache(resultSetToObjectMapper.map(entity, resultSet));
-                initRelationshipInEntityInstance(entityInstance);
+                //initRelationshipInEntityInstance(entityInstance);
                 entityInstanceList.add(entityInstance);
             }
 
@@ -114,6 +112,7 @@ public class SessionBasicRealisation implements Session {
         if(entityInstanceInCache == null){
             cache.addEntityInCache(entity, entityInstance, entityInstanceCompositeKey);
             entityInstanceInCache = entityInstance;
+            initRelationshipInEntityInstance(entityInstance);
         }
 
         return entityInstanceInCache;
@@ -124,52 +123,66 @@ public class SessionBasicRealisation implements Session {
         entityManager.getClassFields(entity).stream()
                 .filter(entityManager::isRelationship)
                 .forEach(field -> initFieldRelationshipToOne(field, entityInstance));
+        entityManager.getToManyRelationship(entity)
+                .forEach(field -> initFieldRelationshipToMany(field, entityInstance));
     }
 
     private void initFieldRelationshipToOne(Field field, Object entityInstance){
         try {
-            //todo ЗДЕСЬ НАЧИНАЕТСЯ ГОВНОКОД, ИСПРАВЬ!!!!!!!!!!!!!!!!!
-            Object object = field.get(entityInstance);
-
-            if(ProxyFactory.isProxyClass(object.getClass())){
-                object = lazyInitializer.getProxyEntityBuilder().unproxy(object);
-                int a = 5;
-            }
-
-            CompositeKey compositeKey = Session.listIdToCompositeKey(entityManager, object);
-            Object relationshipEntityInstance = find(field.getType(), compositeKey);
+            Object relationshipEntityInstance = field.get(entityInstance);
 
             if(entityManager.isLazyRelationship(field)) {
-                field.set(entityInstance, lazyInitializer.initialize(relationshipEntityInstance));
+                Object proxy = lazyInitializer.initialize(relationshipEntityInstance);
+                field.set(entityInstance, proxy);
                 return;
             }
-            field.set(entityInstance, relationshipEntityInstance);
+
+            CompositeKey compositeKey = Session.listIdToCompositeKey(entityManager, relationshipEntityInstance);
+            field.set(entityInstance, find(field.getType(), compositeKey));
+
         } catch (IllegalAccessException e) {
             throw new SessionException(e);
         }
     }
 
-    private void initFieldRelationshipToMany(Class<?> entity, Object entityInstance){
-        List<Field> relationshipToMany = entityManager.getToManyRelationship(entity);
+    private void initFieldRelationshipToMany(Field relationshipToManyField, Object entityInstance){
+        try {
+            relationshipToManyField.setAccessible(true);
+            List<Object> relationshipEntityList = (List<Object>) relationshipToManyField.get(entityInstance);
 
-        for(Field field: relationshipToMany) {
-            field.setAccessible(true);
-            try {
-                List<Object> relationshipInEntity = (List<Object>) field.get(entityInstance);
-                String relationshipMappedByColumn = entityManager.getRelationshipMappedBy(field);
-                Object idRelationship = entityManager.getFieldIdByKeyFor(entity, relationshipMappedByColumn).get(entityInstance);
-                Class<?> classRelationship = entityManager.getGenericTypeInRelationshipCollection(field);
+            String relationshipMappedByColumn = entityManager.getRelationshipMappedBy(relationshipToManyField);
+            Object idRelationship = entityManager.getFieldIdByKeyFor(entityInstance.getClass(), relationshipMappedByColumn).get(entityInstance);
+            Class<?> classRelationship = entityManager.getGenericTypeInRelationshipCollection(relationshipToManyField);
 
-                CompositeKey compositeKey = new CompositeKeyBasicRealisation(Map.of(relationshipMappedByColumn, idRelationship));
-                String sql = queryBuilder.selectSql(classRelationship, compositeKey);
+            CompositeKey compositeKey = new CompositeKeyBasicRealisation(Map.of(relationshipMappedByColumn, idRelationship));
+            String sql = queryBuilder.selectSql(classRelationship, compositeKey);
+            relationshipEntityList.addAll(findObjectByQuery(classRelationship, sql));
 
-                relationshipInEntity.addAll(findObjectByQuery(classRelationship, sql));
-
-
-            } catch (IllegalAccessException e) {
-                throw new SessionException(e);
-            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
+
+//        List<Field> relationshipToMany = entityManager.getToManyRelationship(entity);
+//
+//        for(Field field: relationshipToMany) {
+//            field.setAccessible(true);
+//            try {
+//                List<Object> relationshipInEntity = (List<Object>) field.get(entityInstance);
+//
+//                String relationshipMappedByColumn = entityManager.getRelationshipMappedBy(field);
+//                Object idRelationship = entityManager.getFieldIdByKeyFor(entity, relationshipMappedByColumn).get(entityInstance);
+//                Class<?> classRelationship = entityManager.getGenericTypeInRelationshipCollection(field);
+//
+//                CompositeKey compositeKey = new CompositeKeyBasicRealisation(Map.of(relationshipMappedByColumn, idRelationship));
+//                String sql = queryBuilder.selectSql(classRelationship, compositeKey);
+//
+//                relationshipInEntity.addAll(findObjectByQuery(classRelationship, sql));
+//
+//
+//            } catch (IllegalAccessException e) {
+//                throw new SessionException(e);
+//            }
+//        }
     }
 
 
