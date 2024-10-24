@@ -1,14 +1,11 @@
 package by.smertex.realisation.application.session;
 
-import by.smertex.annotation.entity.classes.Entity;
 import by.smertex.exceptions.application.SessionException;
 import by.smertex.interfaces.application.builders.QueryBuilder;
 import by.smertex.interfaces.application.session.*;
 import by.smertex.interfaces.cfg.EntityManager;
 import by.smertex.interfaces.mapper.ResultSetToObjectMapper;
 import by.smertex.realisation.elements.IsolationLevel;
-import javassist.util.proxy.ProxyFactory;
-import javassist.util.proxy.ProxyObject;
 
 import java.lang.reflect.Field;
 import java.sql.*;
